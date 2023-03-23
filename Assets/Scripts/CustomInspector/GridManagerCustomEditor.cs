@@ -17,7 +17,7 @@ namespace CustomInspector
             }
             if(GUILayout.Button("Generate Grid Button"))
             {
-                gridManager.Start();
+                gridManager.GenerateGrid();
             }
             if(GUILayout.Button("Exit Play Mode"))
             {

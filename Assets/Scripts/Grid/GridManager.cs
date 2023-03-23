@@ -1,16 +1,18 @@
 using System.Collections.Generic;
+using Tile;
 using UnityEngine;
+using GameManager;
 
 namespace Grid
 {
-    public class GridManager : MonoBehaviour
+    public class GridManager : SingletonMB<GridManager>
     {
         [Header("Grid Width and Height")]
         [SerializeField, Range(2, 10)] private int width;
         [SerializeField, Range(2, 10)] private int height;
 
         [Header("Tile Prefab")] 
-        [SerializeField] private Tile tilePrefab;
+        [SerializeField] private List<BaseTile> tilesPrefab;
 
         [Header("Wanted Colors"),Tooltip("If none selected will be all 6 colors")] 
         [SerializeField] private bool isWantedBlue;
@@ -23,52 +25,33 @@ namespace Grid
         [Header("Game Camera")] 
         [SerializeField] private Camera gameCamera;
 
-        private Dictionary<Vector2, Tile> tiles;
+        private Dictionary<Vector2, BaseTile> tiles;
         private List<SelectedColor> selectedTileColor;
         private int wantedColorNumber;
-        public void Start()
-        {
-            CenterCamera();
-            GenerateGrid(true);
-        }
+       
 
-        private void GenerateGrid(bool isSpecificColor)
+        public void GenerateGrid()
         {
             ClearTiles();
             GetWantedColor();
-            tiles = new Dictionary<Vector2, Tile>();
-
-            if (isSpecificColor)
+            tiles = new Dictionary<Vector2, BaseTile>();
+            for (int x = 0; x < width; x++)
             {
-                for (int x = 0; x < width; x++)
+                for (int y = 0; y < height; y++)
                 {
-                    for (int y = 0; y < height; y++)
-                    {
-                        var spawnedTile = Instantiate(tilePrefab, new Vector3(x, y), Quaternion.identity,transform);
-                        var random = Random.Range(0, selectedTileColor.Count);
-                        spawnedTile.Init(selectedTileColor[random]);
-                        spawnedTile.name = $"Tile {x} {y}";
-                        spawnedTile.GetComponentInChildren<SpriteRenderer>().sortingOrder = y;
-                        tiles[new Vector2(x, y)] = spawnedTile;
-                    }
+                    var random = Random.Range(0, selectedTileColor.Count);
+                    var spawnedTile = Instantiate(tilesPrefab[random], new Vector3(x, y), Quaternion.identity,transform);
+                    spawnedTile.Init(selectedTileColor[random]);
+                    spawnedTile.name = $"Tile {x} {y}";
+                    spawnedTile.GetComponentInChildren<SpriteRenderer>().sortingOrder = y;
+                    tiles[new Vector2(x, y)] = spawnedTile;
                 }
             }
-            else
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    for (int y = 0; y < height; y++)
-                    {
-                        var spawnedTile = Instantiate(tilePrefab, new Vector3(x, y), Quaternion.identity,transform);
-                        spawnedTile.name = $"Tile {x} {y}";
-                        spawnedTile.GetComponent<SpriteRenderer>().sortingOrder = y;
-                        tiles[new Vector2(x, y)] = spawnedTile;
-                    }
-                }
-            }
+            CenterCamera();
+            GameManager.GameManager.Instance.ChangeState(GameState.Wait);
         }
 
-        public Tile GetTileAtPosition(Vector2 position)
+        public BaseTile GetTileAtPosition(Vector2 position)
         {
             if (tiles.TryGetValue(position, out var tile))
             {

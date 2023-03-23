@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Grid
+namespace Tile
 {
     public enum SelectedColor
     {
@@ -12,7 +12,7 @@ namespace Grid
         Yellow,
         None
     }
-    public class Tile : MonoBehaviour
+    public class BaseTile : MonoBehaviour
     {
         [Header("Tile Colors")] 
         [SerializeField] private GameObject blueTile;
@@ -23,7 +23,8 @@ namespace Grid
         [SerializeField] private GameObject yellowTile;
 
         [Header("Selected Color")]
-        public SelectedColor selectedColor = SelectedColor.None;
+        [SerializeField] private SelectedColor selectedColor = SelectedColor.None;
+        
 
         public void Init(SelectedColor color)
         {
@@ -54,7 +55,7 @@ namespace Grid
                     yellowTile.SetActive(true);
                     break;
                 case SelectedColor.None:
-                break;
+                    break;
             }
         }
     }
