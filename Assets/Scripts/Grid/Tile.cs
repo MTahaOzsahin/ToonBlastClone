@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace Grid
 {
@@ -33,52 +30,32 @@ namespace Grid
             switch (color)
             {
                 case SelectedColor.Blue:
+                    selectedColor = SelectedColor.Blue;
                     blueTile.SetActive(true);
                     break;
                 case SelectedColor.Green:
+                    selectedColor = SelectedColor.Green;
                     greenTile.SetActive(true);
                     break;
                 case SelectedColor.Pink:
+                    selectedColor = SelectedColor.Pink;
                     pinkTile.SetActive(true);
                     break;
                 case SelectedColor.Purple:
+                    selectedColor = SelectedColor.Purple;
                     purpleTile.SetActive(true);
                     break;
                 case SelectedColor.Red:
+                    selectedColor = SelectedColor.Red;
                     redTile.SetActive(true);
                     break;
                 case SelectedColor.Yellow:
+                    selectedColor = SelectedColor.Yellow;
                     yellowTile.SetActive(true);
                     break;
                 case SelectedColor.None:
                 break;
             }
         }
-
-        // public void Init()
-        // {
-        //     var random = Random.Range(0, 5);
-        //     switch (random)
-        //     {
-        //         case 0:
-        //             blueTile.SetActive(true);
-        //             break;
-        //         case 1:
-        //             greenTile.SetActive(true);
-        //             break;
-        //         case 2:
-        //             pinkTile.SetActive(true);
-        //             break;
-        //         case 3:
-        //             purpleTile.SetActive(true);
-        //             break;
-        //         case 4:
-        //             redTile.SetActive(true);
-        //             break;
-        //         case 5:
-        //             yellowTile.SetActive(true);
-        //             break;
-        //     }
-        // }
     }
 }

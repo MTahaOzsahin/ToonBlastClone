@@ -161,7 +161,7 @@ MonoBehaviour:
   isWantedPurple: 1
   isWantedRed: 0
   isWantedYellow: 0
-  gameCamera: {fileID: 963194228}
+  gameCamera: {fileID: 963194227}
 --- !u!4 &487862350
 Transform:
   m_ObjectHideFlags: 0
