@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Tile;
+using Tile.Interactables.BasicColors;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -12,7 +13,7 @@ namespace Grid
         [SerializeField, Range(2, 10)] private int height;
 
         [Header("Tile Prefab")] 
-        [SerializeField] private List<BaseTile> tilesPrefab;
+        [SerializeField] private List<BasicColor> tilesPrefab;
 
         [Header("Wanted Colors"),Tooltip("If none selected will be all 6 colors")] 
         [SerializeField] private bool isWantedBlue;
@@ -28,30 +29,30 @@ namespace Grid
         [Header("Matched Tiles")]
         public List<BaseTile> matchedTileList;
 
-        private Dictionary<Vector2, BaseTile> tiles;
+        private Dictionary<Vector2, BasicColor> tiles;
         private List<SelectedColor> selectedTileColor;
-        private List<BaseTile[]> columns; //If needed.
-        private List<BaseTile[]> rows; //If needed.
+        private List<BasicColor[]> columns; //If needed.
+        private List<BasicColor[]> rows; //If needed.
 
 
 
         public void GenerateGrid()
         {
             matchedTileList = new List<BaseTile>();
-            columns = new List<BaseTile[]>();
-            rows = new List<BaseTile[]>();
+            columns = new List<BasicColor[]>();
+            rows = new List<BasicColor[]>();
             for (int i = 0; i < width; i++)
             {
-                columns.Add(new BaseTile[height]);
+                columns.Add(new BasicColor[height]);
             }
 
             for (int j = 0; j < height; j++)
             {
-                rows.Add(new BaseTile[width]);
+                rows.Add(new BasicColor[width]);
             }
             ClearTiles();
             GetWantedColor();
-            tiles = new Dictionary<Vector2, BaseTile>();
+            tiles = new Dictionary<Vector2, BasicColor>();
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
@@ -88,7 +89,7 @@ namespace Grid
         //     }
         // }
 
-        public BaseTile GetTileAtPosition(Vector2 position) //If needed.
+        public BasicColor GetTileAtPosition(Vector2 position) //If needed.
         {
             if (tiles.TryGetValue(position, out var tile))
             {
