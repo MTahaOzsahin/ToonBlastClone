@@ -155,19 +155,20 @@ MonoBehaviour:
   width: 4
   height: 4
   tilesPrefab:
-  - {fileID: 3147364994247038713, guid: 3a2fd711f38c81a458649d47963a4582, type: 3}
-  - {fileID: 3847764357242756237, guid: 9864033a10a29234cacba20b1929cc17, type: 3}
-  - {fileID: 1332208529537743576, guid: e9d93dd77e6fbe6419d32fbd453e2daf, type: 3}
-  - {fileID: 4762655364314008798, guid: e16196bef80fa5046a80fccd5a898c7d, type: 3}
-  - {fileID: 9054307684599672024, guid: b972585cf9621dd4198a71ac621313fd, type: 3}
-  - {fileID: 7687008869967381777, guid: 61875f695f5b6a44898e6fc59a11333b, type: 3}
+  - {fileID: 4395169312159616632, guid: 3a2fd711f38c81a458649d47963a4582, type: 3}
+  - {fileID: 2464992581776163852, guid: 9864033a10a29234cacba20b1929cc17, type: 3}
+  - {fileID: 373689247132508761, guid: e9d93dd77e6fbe6419d32fbd453e2daf, type: 3}
+  - {fileID: 6146060179376657503, guid: e16196bef80fa5046a80fccd5a898c7d, type: 3}
+  - {fileID: 7706842193939919961, guid: b972585cf9621dd4198a71ac621313fd, type: 3}
+  - {fileID: 9078928285690109328, guid: 61875f695f5b6a44898e6fc59a11333b, type: 3}
   isWantedBlue: 1
   isWantedGreen: 1
   isWantedPink: 1
   isWantedPurple: 1
-  isWantedRed: 0
-  isWantedYellow: 0
+  isWantedRed: 1
+  isWantedYellow: 1
   gameCamera: {fileID: 963194227}
+  matchedTileList: []
 --- !u!4 &487862350
 Transform:
   m_ObjectHideFlags: 0

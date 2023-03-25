@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5405861682086710313}
   - component: {fileID: 3981534010245711216}
   - component: {fileID: 6367325232242938563}
-  - component: {fileID: 1970367810830739458}
+  - component: {fileID: 867875241770020995}
   m_Layer: 0
   m_Name: BaseTile
   m_TagString: Untagged
@@ -88,13 +88,13 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1.1636363, y: 1.1636363}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &1970367810830739458
+--- !u!114 &867875241770020995
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -103,13 +103,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 8174760561358600277}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd0c34cbba1280c4cad5e0f623617e45, type: 3}
+  m_Script: {fileID: 11500000, guid: 61814e5b7fe219149811af45b187c908, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blueTile: {fileID: 4721775410337072814, guid: 3a2fd711f38c81a458649d47963a4582, type: 3}
-  greenTile: {fileID: 6867060574096051418, guid: 9864033a10a29234cacba20b1929cc17, type: 3}
-  pinkTile: {fileID: 8671196094780107407, guid: e9d93dd77e6fbe6419d32fbd453e2daf, type: 3}
-  purpleTile: {fileID: 2896636649071139977, guid: e16196bef80fa5046a80fccd5a898c7d, type: 3}
-  redTile: {fileID: 1697275008192085135, guid: b972585cf9621dd4198a71ac621313fd, type: 3}
-  yellowTile: {fileID: 38016337718940998, guid: 61875f695f5b6a44898e6fc59a11333b, type: 3}
+  basicColorPrefab: {fileID: 0}
   selectedColor: 6
