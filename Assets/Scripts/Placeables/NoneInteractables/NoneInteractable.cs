@@ -1,8 +1,8 @@
-using UnityEngine;
+using Tile;
 
-namespace Tile.NoneInteractables
+namespace Placeables.NoneInteractables
 {
-    public class NoneInteractable : BaseTile
+    public class NoneInteractable : BasePlaceable
     {
         //This for all none-interactables like obstacles or be able to create different maps. (Further development.)
     }

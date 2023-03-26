@@ -1,8 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using DG.Tweening;
+using Placeables;
 using Tile;
-using Tile.Interactables.BasicColors;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -18,39 +17,34 @@ namespace Grid
         [SerializeField] private BaseTile tilePrefab;
 
         [Header("Wanted Items")] 
-        [SerializeField] private List<GameObject> wantedItemsList;
+        [SerializeField] private List<BasePlaceable> wantedItemsList;
         
         
         [Header("Game Camera")] 
         [SerializeField] private Camera gameCamera;
         
         [Header("Matched Tiles")]
-        public List<BaseTile> matchedTileList;
+        public List<BasePlaceable> matchedPlaceablesList;
 
         private Dictionary<Vector2, BaseTile> tilesInGrid;
-        private List<SelectedColor> selectedTileColor;
-        private List<BaseTile[]> columns;
-        private List<BaseTile[]> rows;
-        private List<BaseTile> tilesToDestroy;
-
-
+        private List<BasePlaceable[]> columns; // If needed.
+        private List<BasePlaceable[]> rows; // If needed.
+        
         public void GenerateGrid()
         {
-            matchedTileList = new List<BaseTile>();
-            columns = new List<BaseTile[]>();
-            rows = new List<BaseTile[]>();
-            tilesToDestroy = new List<BaseTile>();
+            matchedPlaceablesList = new List<BasePlaceable>();
+            columns = new List<BasePlaceable[]>();
+            rows = new List<BasePlaceable[]>();
+            tilesInGrid = new Dictionary<Vector2, BaseTile>();
             for (int i = 0; i < width; i++)
             {
-                columns.Add(new BaseTile[height]);
+                columns.Add(new BasePlaceable[height]);
             }
-
             for (int j = 0; j < height; j++)
             {
-                rows.Add(new BaseTile[width]);
+                rows.Add(new BasePlaceable[width]);
             }
             ClearTiles();
-            tilesInGrid = new Dictionary<Vector2, BaseTile>();
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
@@ -58,9 +52,8 @@ namespace Grid
                     var spawnedTile = Instantiate(tilePrefab, new Vector3(x, y), Quaternion.identity,transform);
                     spawnedTile.name = $"Tile {x} {y}";
                     spawnedTile.GetComponentInChildren<SpriteRenderer>().sortingOrder = y;
+                    spawnedTile.GetComponent<BoxCollider2D>().enabled = true;
                     tilesInGrid[new Vector2(x, y)] = spawnedTile;
-                    columns[x][y] = spawnedTile;
-                    rows[y][x] = spawnedTile;
                 }
             }
             PlaceWantedItems();
@@ -73,24 +66,20 @@ namespace Grid
             {
                 var random = Random.Range(1, wantedItemsList.Count);
                 tile.Value.GetComponent<SpriteRenderer>().enabled = false;
+                tile.Value.GetComponent<BoxCollider2D>().enabled = false;
                 var spawnedItem = Instantiate(wantedItemsList[random], tile.Value.transform.position,
                     Quaternion.identity, tile.Value.gameObject.transform);
                 spawnedItem.name = $"{wantedItemsList[random].name}";
                 spawnedItem.GetComponent<SpriteRenderer>().sortingOrder = (int)tile.Key.y;
-                tile.Value.occupiedPrefab = spawnedItem.GetComponent<BasicColor>();
+                tile.Value.occupiedPrefab = spawnedItem.GetComponent<BasePlaceable>();
+                columns[(int)tile.Key.x][(int)tile.Key.y] = spawnedItem;
+                rows[(int)tile.Key.y][(int)tile.Key.x] = spawnedItem;
             }
         }
         
-        public BaseTile GetTileAtPosition(Vector2 position) //If needed.
+        private BaseTile GetTileAtPosition(Vector2 position) //If needed.
         {
-            if (tilesInGrid.TryGetValue(position, out var tile))
-            {
-                return tile;
-            }
-            else
-            {
-                return null;
-            }
+            return tilesInGrid.TryGetValue(position, out var tile) ? tile : null;
         }
 
         private void CenterCamera()
@@ -107,16 +96,32 @@ namespace Grid
         }
         
 
-        public void DestroyTiles(Vector2 position)
+        public void DestroyPlaceable(Vector2 position)
         {
-            if (tilesInGrid.ContainsKey(position))
+            var castedPosition = new Vector2((int)position.x, (int)position.y);
+            if (tilesInGrid.ContainsKey(castedPosition))
             {
-                tilesInGrid.TryGetValue(position, out var tile);
-                tilesToDestroy.Add(tile);
-                matchedTileList.Remove(tile);
-                if (tile != null) Destroy(tile.gameObject);
-                tilesInGrid.Remove(position);
+                tilesInGrid.TryGetValue(castedPosition, out var tile);
+                if (tile != null)
+                {
+                    var placeablePosition = tile.transform.position;
+                    matchedPlaceablesList.Remove(tile.GetComponent<BasePlaceable>()); 
+                    Destroy(tile.GetComponentInChildren<BasePlaceable>().gameObject);
+                    tile.occupiedPrefab = null;
+                    columns[(int)placeablePosition.x][(int)placeablePosition.y] = null;
+                    ReCreateWantedItems(position);
+                }
             }
+        }
+
+        private void ReCreateWantedItems(Vector2 position)
+        {
+            var newPosition = new Vector2(position.x, position.y + 16);
+            var random = Random.Range(1, wantedItemsList.Count);
+            var spawnedItem = Instantiate(wantedItemsList[random], newPosition,
+                Quaternion.identity);
+            spawnedItem.name = $"{wantedItemsList[random].name}";
+            spawnedItem.GetComponent<SpriteRenderer>().sortingOrder = (int)position.y;
         }
 
         private void ClearTiles()
@@ -128,57 +133,37 @@ namespace Grid
             }
         }
 
-        public IEnumerator OperateGrid()
+        private void OperateGrid()
         {
-            var clearedTileToDestroyList = tilesToDestroy.Where(x => x != null).GroupBy(t => t.transform.position.x)
-                .Select(grp => grp.Last()).OrderBy(h => h.transform.position.x).ToList();
-            // var clearedTileToDestroyList = tilesToDestroy.Where(x => x != null).ToList();
-            foreach (var destroyedTile in clearedTileToDestroyList)
+            foreach (var tile in tilesInGrid)
             {
-                var destroyedTilePosition = destroyedTile.transform.position;
-                var destroyedTileY = destroyedTilePosition.y;
-                for (int i = (int)destroyedTileY + 1; i < height; i++)
+                if (tile.Value.occupiedPrefab != null && tile.Key.y - 1 >= 0)
                 {
-                    if (columns[(int)destroyedTilePosition.x][(int)destroyedTilePosition.y + 1] != null)
+                    var originPosition = tile.Key;
+                    if (GetTileAtPosition(new Vector2(originPosition.x,originPosition.y - 1)).occupiedPrefab == null)
                     {
-                        columns[(int)destroyedTilePosition.x][(int)destroyedTilePosition.y + 1].transform.position =
-                            new Vector3(destroyedTilePosition.x, destroyedTilePosition.y);
-                        columns[(int)destroyedTilePosition.x][(int)destroyedTilePosition.y + 1].name =
-                            $"Tile {destroyedTilePosition.x} {destroyedTilePosition.y} {columns[(int)destroyedTilePosition.x][(int)destroyedTilePosition.y + 1].GetComponent<BasicColor>().selectedColor.ToString()}";
-                        columns[(int)destroyedTilePosition.x][(int)destroyedTilePosition.y + 1]
-                            .GetComponent<SpriteRenderer>().sortingOrder = (int)destroyedTilePosition.y + 1;
-                        destroyedTilePosition = new Vector3(destroyedTilePosition.x, destroyedTilePosition.y + 1);
+                        MovePlaceableItem(originPosition,new Vector2(originPosition.x,originPosition.y -1));
                     }
                 }
-                var newColumnOrder = tilesInGrid.Values.Where(x => (int)x.transform.position.x == (int)destroyedTilePosition.x).ToArray();
-                columns[(int)destroyedTilePosition.x] = newColumnOrder;
-                
-                // if (columns[(int)tilePosition.x][(int)tilePosition.y + 1] != null)
-                // {
-                //     columns[(int)tilePosition.x][(int)tilePosition.y + 1].transform.position =
-                //         new Vector3(tilePosition.x, tilePosition.y);
-                //     columns[(int)tilePosition.x][(int)tilePosition.y + 1].name =
-                //         $"Tile {tilePosition.x} {tilePosition.y} {columns[(int)tilePosition.x][(int)tilePosition.y + 1].GetComponent<BasicColor>().selectedColor.ToString()}";
-                //     var newColumnOrder = tilesInGrid.Values.Where(x => (int)x.transform.position.x == (int)tilePosition.x).ToArray();
-                //     columns[(int)tilePosition.x] = newColumnOrder;
-                // }
             }
-
-            yield return null;
-
-            // for (int i = 0; i < columns.Count; i++)
-            // {
-            //     for (int j = 0; j < columns[i].Length; j++)
-            //     {
-            //         var notDestroyedTiles = columns[i].Where(x => x != null).ToList();
-            //         foreach (var tile in notDestroyedTiles)
-            //         {
-            //             var originPosition = tile.transform.position;
-            //             var modifiedPosition = new Vector2(originPosition.x, originPosition.y - 1);
-            //             tile.transform.position = new Vector3(modifiedPosition.x, modifiedPosition.y);
-            //         }
-            //     }
-            // }
         }
+
+        private void MovePlaceableItem(Vector2 oldPosition , Vector2 newPosition)
+        {
+            GetTileAtPosition(oldPosition).occupiedPrefab = null;
+            var oldItem = GetTileAtPosition(oldPosition).GetComponentInChildren<BasePlaceable>();
+            var oldItemTransform = oldItem.transform;
+            oldItemTransform.parent = GetTileAtPosition(newPosition).transform;
+            oldItemTransform.DOLocalMove(Vector3.zero, 0.1f, true);
+            oldItem.GetComponent<SpriteRenderer>().sortingOrder = (int)newPosition.y;
+            if (matchedPlaceablesList.Contains(oldItem)) matchedPlaceablesList.Remove(oldItem);
+            GetTileAtPosition(newPosition).occupiedPrefab = oldItem;
+        }
+
+        private void Update()
+        {
+            OperateGrid();
+        }
+
     }
 }

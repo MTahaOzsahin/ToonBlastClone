@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
-using Tile.Interactables.BasicColors;
+using Placeables;
+using Placeables.Interactables.BasicColors;
 using UnityEngine;
 
 namespace Tile
@@ -11,14 +13,12 @@ namespace Tile
         public List<BaseTile> neighbourTiles;
 
         [Header("Occupied prefab")]
-        public BaseTile occupiedPrefab;
-        
+        public BasePlaceable occupiedPrefab;
 
         public BaseTile()
         {
             neighbourTiles = new List<BaseTile>();
         }
-        public virtual void Init(){}
 
         private void OnTriggerEnter2D(Collider2D colliderInfo)
         {
@@ -26,21 +26,28 @@ namespace Tile
             var directionToCollidedTile = thisTileTransform.position - colliderInfo.gameObject.transform.position;
             var directionToCollidedTileNormalized = directionToCollidedTile.normalized;
             var direction =Vector3.Dot(thisTileTransform.up.normalized, directionToCollidedTileNormalized);
-            var collidedTile = colliderInfo.GetComponent<BaseTile>();
-            if(collidedTile.GetComponent<BasicColor>()) return;
-            if (Mathf.Approximately(direction,1f)) //Up
+            if (colliderInfo.GetComponent<BaseTile>() != null)
             {
-                neighbourTiles.Add(collidedTile);
-            }
-            else if (Mathf.Approximately(direction,-1f)) //Down
-            {
-                neighbourTiles.Add(collidedTile);
-            }
-            else if (Mathf.Approximately(direction,0f)) //Right or Left
-            {
+                var collidedTile = colliderInfo.GetComponent<BaseTile>();
+                if (Mathf.Approximately(direction,1f)) //Up
+                {
+                    neighbourTiles.Add(collidedTile);
+                }
+                else if (Mathf.Approximately(direction,-1f)) //Down
+                {
+                    neighbourTiles.Add(collidedTile);
+                }
+                else if (Mathf.Approximately(direction,0f)) //Right or Left
+                {
                 
-                neighbourTiles.Add(collidedTile);
+                    neighbourTiles.Add(collidedTile);
+                }
             }
+        }
+
+        private void OnMouseDown()
+        {
+            //
         }
     }
 }

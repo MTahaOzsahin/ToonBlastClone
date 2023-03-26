@@ -1,8 +1,8 @@
-using UnityEngine;
+using Tile;
 
-namespace Tile.Interactables
+namespace Placeables.Interactables
 {
-    public class Interactable : BaseTile
+    public class Interactable : BasePlaceable
     {
         //This for all interactables like basic colors or rockets or bonuses. (Further development.)
     }
