@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Tile;
 using Tile.Interactables.BasicColors;
 using UnityEngine;
@@ -13,15 +15,11 @@ namespace Grid
         [SerializeField, Range(2, 10)] private int height;
 
         [Header("Tile Prefab")] 
-        [SerializeField] private List<BasicColor> tilesPrefab;
+        [SerializeField] private BaseTile tilePrefab;
 
-        [Header("Wanted Colors"),Tooltip("If none selected will be all 6 colors")] 
-        [SerializeField] private bool isWantedBlue;
-        [SerializeField] private bool isWantedGreen;
-        [SerializeField] private bool isWantedPink;
-        [SerializeField] private bool isWantedPurple;
-        [SerializeField] private bool isWantedRed;
-        [SerializeField] private bool isWantedYellow;
+        [Header("Wanted Items")] 
+        [SerializeField] private List<GameObject> wantedItemsList;
+        
         
         [Header("Game Camera")] 
         [SerializeField] private Camera gameCamera;
@@ -29,69 +27,63 @@ namespace Grid
         [Header("Matched Tiles")]
         public List<BaseTile> matchedTileList;
 
-        private Dictionary<Vector2, BasicColor> tiles;
+        private Dictionary<Vector2, BaseTile> tilesInGrid;
         private List<SelectedColor> selectedTileColor;
-        private List<BasicColor[]> columns; //If needed.
-        private List<BasicColor[]> rows; //If needed.
-
+        private List<BaseTile[]> columns;
+        private List<BaseTile[]> rows;
+        private List<BaseTile> tilesToDestroy;
 
 
         public void GenerateGrid()
         {
             matchedTileList = new List<BaseTile>();
-            columns = new List<BasicColor[]>();
-            rows = new List<BasicColor[]>();
+            columns = new List<BaseTile[]>();
+            rows = new List<BaseTile[]>();
+            tilesToDestroy = new List<BaseTile>();
             for (int i = 0; i < width; i++)
             {
-                columns.Add(new BasicColor[height]);
+                columns.Add(new BaseTile[height]);
             }
 
             for (int j = 0; j < height; j++)
             {
-                rows.Add(new BasicColor[width]);
+                rows.Add(new BaseTile[width]);
             }
             ClearTiles();
-            GetWantedColor();
-            tiles = new Dictionary<Vector2, BasicColor>();
+            tilesInGrid = new Dictionary<Vector2, BaseTile>();
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
-                    var random = Random.Range(0, selectedTileColor.Count);
-                    var spawnedTile = Instantiate(tilesPrefab[random], new Vector3(x, y), Quaternion.identity,transform);
-                    spawnedTile.Init(selectedTileColor[random]);
-                    spawnedTile.name = $"Tile {x} {y} {spawnedTile.selectedColor.ToString()}";
+                    var spawnedTile = Instantiate(tilePrefab, new Vector3(x, y), Quaternion.identity,transform);
+                    spawnedTile.name = $"Tile {x} {y}";
                     spawnedTile.GetComponentInChildren<SpriteRenderer>().sortingOrder = y;
-                    tiles[new Vector2(x, y)] = spawnedTile;
+                    tilesInGrid[new Vector2(x, y)] = spawnedTile;
                     columns[x][y] = spawnedTile;
                     rows[y][x] = spawnedTile;
                 }
             }
+            PlaceWantedItems();
             CenterCamera();
-            // GenerateReserveGrid();
         }
 
-        // private void GenerateReserveGrid()
-        // {
-        //     for (int x = 0; x < width; x++)
-        //     {
-        //         for (int y = 16; y < height + 16; y++)  // +16 is to set above camera view.
-        //         {
-        //             var random = Random.Range(0, selectedTileColor.Count);
-        //             var spawnedTile = Instantiate(tilesPrefab[random], new Vector3(x, y), Quaternion.identity,transform);
-        //             spawnedTile.Init(selectedTileColor[random]);
-        //             spawnedTile.name = $"Tile {x} {y} {spawnedTile.selectedColor.ToString()}";
-        //             spawnedTile.GetComponentInChildren<SpriteRenderer>().sortingOrder = y;
-        //             tiles[new Vector2(x, y)] = spawnedTile;
-        //             // columns[x][y] = spawnedTile;
-        //             // rows[y][x] = spawnedTile;
-        //         }
-        //     }
-        // }
-
-        public BasicColor GetTileAtPosition(Vector2 position) //If needed.
+        private void PlaceWantedItems()
         {
-            if (tiles.TryGetValue(position, out var tile))
+            foreach (var tile in tilesInGrid)
+            {
+                var random = Random.Range(1, wantedItemsList.Count);
+                tile.Value.GetComponent<SpriteRenderer>().enabled = false;
+                var spawnedItem = Instantiate(wantedItemsList[random], tile.Value.transform.position,
+                    Quaternion.identity, tile.Value.gameObject.transform);
+                spawnedItem.name = $"{wantedItemsList[random].name}";
+                spawnedItem.GetComponent<SpriteRenderer>().sortingOrder = (int)tile.Key.y;
+                tile.Value.occupiedPrefab = spawnedItem.GetComponent<BasicColor>();
+            }
+        }
+        
+        public BaseTile GetTileAtPosition(Vector2 position) //If needed.
+        {
+            if (tilesInGrid.TryGetValue(position, out var tile))
             {
                 return tile;
             }
@@ -113,72 +105,80 @@ namespace Grid
                 _ => 60
             };
         }
-
-        private void GetWantedColor()
-        {
-            selectedTileColor = new List<SelectedColor>();
-            var blueColor = SelectedColor.Blue;
-            var greenColor = SelectedColor.Green;
-            var pinkColor = SelectedColor.Pink;
-            var purpleColor = SelectedColor.Purple;
-            var redColor = SelectedColor.Red;
-            var yellowColor = SelectedColor.Yellow;
-            
-            if (isWantedBlue)
-            {
-                selectedTileColor.Add(blueColor);
-            }
-            if (isWantedGreen)
-            {
-                selectedTileColor.Add(greenColor);
-            }
-            if (isWantedPink)
-            {
-                selectedTileColor.Add(pinkColor);
-            }
-            if (isWantedPurple)
-            {
-                selectedTileColor.Add(purpleColor);
-            }
-            if (isWantedRed)
-            {
-                selectedTileColor.Add(redColor);
-            }
-            if (isWantedYellow)
-            {
-                selectedTileColor.Add(yellowColor);
-            }
-            if (selectedTileColor.Count == 0)
-            {
-                selectedTileColor.Add(blueColor);
-                selectedTileColor.Add(greenColor);
-                selectedTileColor.Add(pinkColor);
-                selectedTileColor.Add(purpleColor);
-                selectedTileColor.Add(redColor);
-                selectedTileColor.Add(yellowColor);
-            }
-        }
+        
 
         public void DestroyTiles(Vector2 position)
         {
-            if (tiles.ContainsKey(position))
+            if (tilesInGrid.ContainsKey(position))
             {
-                tiles.Remove(position);
-            }
-
-            if (matchedTileList.Count == 0)
-            {
-                GenerateGrid();
+                tilesInGrid.TryGetValue(position, out var tile);
+                tilesToDestroy.Add(tile);
+                matchedTileList.Remove(tile);
+                if (tile != null) Destroy(tile.gameObject);
+                tilesInGrid.Remove(position);
             }
         }
 
         private void ClearTiles()
         {
-            if(tiles == null || tiles.Count == 0) return;
-            foreach (var tile in tiles)
+            if(tilesInGrid == null || tilesInGrid.Count == 0) return;
+            foreach (var tile in tilesInGrid)
             {
-                if ( tile.Value.gameObject != null) Destroy(tile.Value.gameObject);
+                Destroy(tile.Value.gameObject);
             }
+        }
+
+        public IEnumerator OperateGrid()
+        {
+            var clearedTileToDestroyList = tilesToDestroy.Where(x => x != null).GroupBy(t => t.transform.position.x)
+                .Select(grp => grp.Last()).OrderBy(h => h.transform.position.x).ToList();
+            // var clearedTileToDestroyList = tilesToDestroy.Where(x => x != null).ToList();
+            foreach (var destroyedTile in clearedTileToDestroyList)
+            {
+                var destroyedTilePosition = destroyedTile.transform.position;
+                var destroyedTileY = destroyedTilePosition.y;
+                for (int i = (int)destroyedTileY + 1; i < height; i++)
+                {
+                    if (columns[(int)destroyedTilePosition.x][(int)destroyedTilePosition.y + 1] != null)
+                    {
+                        columns[(int)destroyedTilePosition.x][(int)destroyedTilePosition.y + 1].transform.position =
+                            new Vector3(destroyedTilePosition.x, destroyedTilePosition.y);
+                        columns[(int)destroyedTilePosition.x][(int)destroyedTilePosition.y + 1].name =
+                            $"Tile {destroyedTilePosition.x} {destroyedTilePosition.y} {columns[(int)destroyedTilePosition.x][(int)destroyedTilePosition.y + 1].GetComponent<BasicColor>().selectedColor.ToString()}";
+                        columns[(int)destroyedTilePosition.x][(int)destroyedTilePosition.y + 1]
+                            .GetComponent<SpriteRenderer>().sortingOrder = (int)destroyedTilePosition.y + 1;
+                        destroyedTilePosition = new Vector3(destroyedTilePosition.x, destroyedTilePosition.y + 1);
+                    }
+                }
+                var newColumnOrder = tilesInGrid.Values.Where(x => (int)x.transform.position.x == (int)destroyedTilePosition.x).ToArray();
+                columns[(int)destroyedTilePosition.x] = newColumnOrder;
+                
+                // if (columns[(int)tilePosition.x][(int)tilePosition.y + 1] != null)
+                // {
+                //     columns[(int)tilePosition.x][(int)tilePosition.y + 1].transform.position =
+                //         new Vector3(tilePosition.x, tilePosition.y);
+                //     columns[(int)tilePosition.x][(int)tilePosition.y + 1].name =
+                //         $"Tile {tilePosition.x} {tilePosition.y} {columns[(int)tilePosition.x][(int)tilePosition.y + 1].GetComponent<BasicColor>().selectedColor.ToString()}";
+                //     var newColumnOrder = tilesInGrid.Values.Where(x => (int)x.transform.position.x == (int)tilePosition.x).ToArray();
+                //     columns[(int)tilePosition.x] = newColumnOrder;
+                // }
+            }
+
+            yield return null;
+
+            // for (int i = 0; i < columns.Count; i++)
+            // {
+            //     for (int j = 0; j < columns[i].Length; j++)
+            //     {
+            //         var notDestroyedTiles = columns[i].Where(x => x != null).ToList();
+            //         foreach (var tile in notDestroyedTiles)
+            //         {
+            //             var originPosition = tile.transform.position;
+            //             var modifiedPosition = new Vector2(originPosition.x, originPosition.y - 1);
+            //             tile.transform.position = new Vector3(modifiedPosition.x, modifiedPosition.y);
+            //         }
+            //     }
+            // }
         }
     }
 }
