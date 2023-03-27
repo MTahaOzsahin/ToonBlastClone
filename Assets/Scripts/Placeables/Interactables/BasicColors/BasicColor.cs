@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Grid;
@@ -24,13 +25,30 @@ namespace Placeables.Interactables.BasicColors
         [Header("Matched Neighbour Tile List")] 
         public List<BasePlaceable> matchedNeighbourTiles;
 
+        [Header("Sprite List for combos")] 
+        [SerializeField] private List<Sprite> combosSpritesList;
+
+        private SpriteRenderer spriteRenderer;
+        private List<BasePlaceable> destroyableItemsList;
+        
+        private void OnEnable()
+        {
+            destroyableItemsList = new List<BasePlaceable> { this };
+            spriteRenderer = GetComponent<SpriteRenderer>();
+        }
+
+        private void Update()
+        {
+            CheckMatches();
+        }
+
         private void OnTriggerStay2D(Collider2D other)
         {
             var thisTileTransform = transform;
             var directionToCollidedTile = thisTileTransform.position - other.gameObject.transform.position;
             var directionToCollidedTileNormalized = directionToCollidedTile.normalized;
             var direction =Vector3.Dot(thisTileTransform.up.normalized, directionToCollidedTileNormalized);
-            if (other.gameObject.GetComponent<BasicColor>() != null)
+            if (other.gameObject.GetComponent<BasicColor>() != null && other.gameObject.layer != LayerMask.NameToLayer("NotShow"))
             {
                 var collidedTile = other.gameObject.GetComponent<BasicColor>();
                 if (Mathf.Approximately(direction,1f)) //Up
@@ -104,28 +122,46 @@ namespace Placeables.Interactables.BasicColors
 
         private void OnMouseDown()
         {
-            if (GridManager.Instance.matchedPlaceablesList.Contains(this))
+            foreach (var placeableToDestroy in destroyableItemsList)
             {
-                var tempList = new List<BasePlaceable> { this };
+                GridManager.Instance.DestroyPlaceable(placeableToDestroy.transform.position);
+                if (matchedNeighbourTiles.Contains(placeableToDestroy))
+                    matchedNeighbourTiles.Remove(placeableToDestroy);
+            }
+        }
+
+        private void CheckMatches()
+        {
+            if (GridManager.Instance.matchedPlaceablesList.Contains(this))
+            { 
                 foreach (var tile in matchedNeighbourTiles)
                 {
-                    if (!tempList.Contains(tile)) tempList.Add(tile);
+                    if (!destroyableItemsList.Contains(tile)) destroyableItemsList.Add(tile);
                 }
             
-                for (int i = 0; i < tempList.Count; i++)
+                for (int i = 0; i < destroyableItemsList.Count; i++)
                 {
-                    foreach (var newTileMatchedNeighbourTile in tempList[i].GetComponent<BasicColor>().matchedNeighbourTiles)
+                    foreach (var newTileMatchedNeighbourTile in destroyableItemsList[i].GetComponent<BasicColor>().matchedNeighbourTiles)
                     {
-                        if (!tempList.Contains(newTileMatchedNeighbourTile)) tempList.Add(newTileMatchedNeighbourTile);
+                        if (!destroyableItemsList.Contains(newTileMatchedNeighbourTile)) destroyableItemsList.Add(newTileMatchedNeighbourTile);
                     }
                 }
-            
-                foreach (var placeableToDestroy in tempList)
-                {
-                    GridManager.Instance.DestroyPlaceable(placeableToDestroy.transform.position);
-                    if (matchedNeighbourTiles.Contains(placeableToDestroy))
-                        matchedNeighbourTiles.Remove(placeableToDestroy);
-                }
+            }
+
+            switch (destroyableItemsList.Count)
+            {
+                case < 5:
+                    spriteRenderer.sprite = combosSpritesList[0];
+                    break;
+                case >= 5 and < 8:
+                    spriteRenderer.sprite = combosSpritesList[1];
+                    break;
+                case >= 8 and < 10:
+                    spriteRenderer.sprite = combosSpritesList[2];
+                    break;
+                case > 10:
+                    spriteRenderer.sprite = combosSpritesList[3];
+                    break;
             }
         }
     }

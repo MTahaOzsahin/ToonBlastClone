@@ -157,3 +157,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selectedColor: 3
   matchedNeighbourTiles: []
+  combosSpritesList:
+  - {fileID: 21300000, guid: 80ca5a9d5a707334ea75e059b9f2e5e4, type: 3}
+  - {fileID: 21300000, guid: 6e8d676bb6cbcae43938fd0c4923bad4, type: 3}
+  - {fileID: 21300000, guid: e71caef62d66ccf439027aa09b358ab5, type: 3}
+  - {fileID: 21300000, guid: cbd921a1c5e1fe84c929e192e9df0298, type: 3}
