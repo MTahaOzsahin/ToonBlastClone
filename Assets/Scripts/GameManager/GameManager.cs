@@ -1,6 +1,5 @@
 using System;
 using Grid;
-using UnityEngine;
 
 namespace GameManager
 {
@@ -23,6 +22,8 @@ namespace GameManager
                     break;
                 case GameState.OperatingGrid:
                     break;
+                case GameState.CreateBonusItem:
+                    break;
                 case GameState.CheckForCombos:
                     break;
                 default:
@@ -35,6 +36,7 @@ namespace GameManager
     {
         GenerateGrid,
         OperatingGrid,
+        CreateBonusItem,
         CheckForCombos
     }
 }

@@ -152,8 +152,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7dbf2c1faf9ab7140981517a80e0b3a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 3
-  height: 3
+  width: 4
+  height: 4
   tilePrefab: {fileID: -2510868045715180608, guid: 4c82ed1b8d3161e47bae379ebcfd1e05, type: 3}
   wantedItemsList:
   - {fileID: 2419217782211578260, guid: 3a2fd711f38c81a458649d47963a4582, type: 3}
@@ -162,7 +162,6 @@ MonoBehaviour:
   - {fileID: 8957700334759380325, guid: e16196bef80fa5046a80fccd5a898c7d, type: 3}
   - {fileID: 7355991955008864865, guid: b972585cf9621dd4198a71ac621313fd, type: 3}
   - {fileID: 3402067555417402138, guid: 61875f695f5b6a44898e6fc59a11333b, type: 3}
-  gameCamera: {fileID: 963194227}
   matchedPlaceableItemsList: []
 --- !u!4 &487862350
 Transform:
@@ -284,6 +283,7 @@ GameObject:
   - component: {fileID: 963194228}
   - component: {fileID: 963194227}
   - component: {fileID: 963194226}
+  - component: {fileID: 963194229}
   m_Layer: 0
   m_Name: GameCamera
   m_TagString: MainCamera
@@ -357,6 +357,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &963194229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963194225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f1e40c6235395a41bb1849012fefb44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameCamera: {fileID: 963194227}
 --- !u!1 &1998718130
 GameObject:
   m_ObjectHideFlags: 0

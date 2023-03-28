@@ -22,12 +22,11 @@ namespace Grid
 
         [Header("Wanted Items")] 
         [SerializeField] private List<BasePlaceable> wantedItemsList;
-        
-        [Header("Game Camera")] 
-        [SerializeField] private Camera gameCamera;
-        
+
         [Header("Matched Tiles")]
         public List<BasePlaceable> matchedPlaceableItemsList;
+
+        public System.Action<int, int> OnGameStart;
 
         private Dictionary<Vector2, BaseTile> tilesInGrid;
         private List<BasePlaceable[]> columns; // If needed.
@@ -36,6 +35,11 @@ namespace Grid
         private int count;
         private List<Vector2> itemsWillMoveOldPositionList;
         private List<Vector2> itemsWillMoveNewPositionList;
+
+        private void OnEnable()
+        {
+            DOTween.SetTweensCapacity(500,50);
+        }
 
         private void Update()
         {
@@ -69,7 +73,7 @@ namespace Grid
                 }
             }
             PlaceWantedItems();
-            CenterCamera();
+            OnGameStart?.Invoke(width,height);
             GameManager.GameManager.Instance.ChangeState(GameState.CheckForCombos);
         }
 
@@ -95,20 +99,6 @@ namespace Grid
         {
             return tilesInGrid.TryGetValue(position, out var tile) ? tile : null;
         }
-
-        private void CenterCamera()
-        {
-            gameCamera.transform.position = new Vector3((float)width / 2 - 0.5f, (float)height / 2 - 0.5f, -10f);
-            gameCamera.fieldOfView = width switch
-            {
-                7 => 68,
-                8 => 76,
-                9 => 84,
-                10 => 92,
-                _ => 60
-            };
-        }
-        
 
         public void DestroyPlaceable(Vector2 position)
         {
@@ -146,7 +136,7 @@ namespace Grid
                         tile.occupiedPrefab = null;
                         columns[(int)placeablePosition.x][(int)placeablePosition.y] = null;
                         rows[(int)placeablePosition.y][(int)placeablePosition.x] = null;
-                        CreateWantedItemsAtPosition(new Vector2((int)position.x,(int)position.y + height * 2));
+                        CreateWantedItemsAtPosition(new Vector2((int)position.x,(height * 3 ) - (height - (int)position.y)));
                     }
                 }
             }
@@ -210,11 +200,11 @@ namespace Grid
                 var newItem = GetTileAtPosition(oldPosition[i]).GetComponentInChildren<BasePlaceable>();
                 var newItemTransform = newItem.transform;
                 newItemTransform.parent = GetTileAtPosition(newPosition[i]).transform;
-                newItemTransform.DOLocalMove(Vector3.zero, 0.5f * Time.fixedDeltaTime, true);
+                newItemTransform.DOLocalMove(Vector3.zero, 20f * Time.fixedDeltaTime, true);
                 newItem.GetComponent<SpriteRenderer>().sortingOrder = (int)newPosition[i].y;
                 GetTileAtPosition(newPosition[i]).occupiedPrefab = newItem;
             }
-            yield return new WaitForSeconds(10f* Time.fixedDeltaTime);
+            yield return new WaitForSeconds(22f* Time.fixedDeltaTime);
             foreach (var tile in tilesInGrid)
             {
                 if (tile.Value.occupiedPrefab != null && tile.Key.y < height)
@@ -391,8 +381,10 @@ namespace Grid
                 {
                     if (baseTile.Value.occupiedPrefab != null)
                     {
+                        Tween shakeTween = baseTile.Value.transform.DOShakePosition(0.2f, 0.4f, 3, 10, true);
+                        shakeTween.OnComplete(() =>
+                            Destroy(baseTile.Value.GetComponentInChildren<BasicColor>().gameObject));
                         tempList.Add(baseTile.Value.occupiedPrefab);
-                        Destroy(baseTile.Value.GetComponentInChildren<BasicColor>().gameObject);
                         baseTile.Value.occupiedPrefab = null;
                     }
                 }
