@@ -152,8 +152,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7dbf2c1faf9ab7140981517a80e0b3a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 3
-  height: 3
+  width: 10
+  height: 10
   tilePrefab: {fileID: -2510868045715180608, guid: 4c82ed1b8d3161e47bae379ebcfd1e05, type: 3}
   wantedItemsList:
   - {fileID: 2419217782211578260, guid: 3a2fd711f38c81a458649d47963a4582, type: 3}
@@ -163,7 +163,7 @@ MonoBehaviour:
   - {fileID: 7355991955008864865, guid: b972585cf9621dd4198a71ac621313fd, type: 3}
   - {fileID: 3402067555417402138, guid: 61875f695f5b6a44898e6fc59a11333b, type: 3}
   gameCamera: {fileID: 963194227}
-  matchedPlaceablesList: []
+  matchedPlaceableItemsList: []
 --- !u!4 &487862350
 Transform:
   m_ObjectHideFlags: 0
@@ -324,7 +324,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 92
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -350,7 +350,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.5, y: 1.5, z: -10}
+  m_LocalPosition: {x: 4.5, y: 4.5, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -434,4 +434,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bafa90cb0793244439dd462f9d4fabd6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameState: 0
+  gameState: 2

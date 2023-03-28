@@ -44,10 +44,5 @@ namespace Tile
                 }
             }
         }
-
-        private void OnMouseDown()
-        {
-            //
-        }
     }
 }

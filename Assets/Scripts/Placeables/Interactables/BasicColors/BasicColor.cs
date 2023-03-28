@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using GameManager;
 using Grid;
 using UnityEngine;
 
@@ -22,19 +22,20 @@ namespace Placeables.Interactables.BasicColors
         [Header("Selected Color")]
         public SelectedColor selectedColor;
         
-        [Header("Matched Neighbour Tile List")] 
-        public List<BasePlaceable> matchedNeighbourTiles;
+        [Header("Matched Neighbour Tile List")]
+        public List<BasicColor> matchedNeighbourItems;
 
         [Header("Sprite List for combos")] 
         [SerializeField] private List<Sprite> combosSpritesList;
 
         private SpriteRenderer spriteRenderer;
-        private List<BasePlaceable> destroyableItemsList;
+        public List<BasicColor> destroyableItemsList;
         
         private void OnEnable()
         {
-            destroyableItemsList = new List<BasePlaceable> { this };
+            destroyableItemsList = new List<BasicColor> { this };
             spriteRenderer = GetComponent<SpriteRenderer>();
+            matchedNeighbourItems = new List<BasicColor>();
         }
 
         private void Update()
@@ -42,112 +43,55 @@ namespace Placeables.Interactables.BasicColors
             CheckMatches();
         }
 
-        private void OnTriggerStay2D(Collider2D other)
-        {
-            var thisTileTransform = transform;
-            var directionToCollidedTile = thisTileTransform.position - other.gameObject.transform.position;
-            var directionToCollidedTileNormalized = directionToCollidedTile.normalized;
-            var direction =Vector3.Dot(thisTileTransform.up.normalized, directionToCollidedTileNormalized);
-            if (other.gameObject.GetComponent<BasicColor>() != null && other.gameObject.layer != LayerMask.NameToLayer("NotShow"))
-            {
-                var collidedTile = other.gameObject.GetComponent<BasicColor>();
-                if (Mathf.Approximately(direction,1f)) //Up
-                {
-                    if (collidedTile.selectedColor == selectedColor)
-                    {
-                        if(!matchedNeighbourTiles.Contains(collidedTile)) matchedNeighbourTiles.Add(collidedTile);
-                        if (!GridManager.Instance.matchedPlaceablesList.Contains(collidedTile)) GridManager.Instance.matchedPlaceablesList.Add(collidedTile);
-                    }
-                }
-                else if (Mathf.Approximately(direction,-1f)) //Down
-                {
-                    if (collidedTile.selectedColor == selectedColor)
-                    {
-                        if(!matchedNeighbourTiles.Contains(collidedTile)) matchedNeighbourTiles.Add(collidedTile);
-                        if (!GridManager.Instance.matchedPlaceablesList.Contains(collidedTile)) GridManager.Instance.matchedPlaceablesList.Add(collidedTile);
-                    }
-                }
-                else if (Mathf.Approximately(direction,0f)) //Right or Left
-                {
-                    if (collidedTile.selectedColor == selectedColor)
-                    {
-                        if(!matchedNeighbourTiles.Contains(collidedTile)) matchedNeighbourTiles.Add(collidedTile);
-                        if (!GridManager.Instance.matchedPlaceablesList.Contains(collidedTile)) GridManager.Instance.matchedPlaceablesList.Add(collidedTile);
-                    }
-                }
-
-                GridManager.Instance.matchedPlaceablesList = GridManager.Instance.matchedPlaceablesList.Where(p => p != null).OrderBy(t => t.GetComponent<BasicColor>().selectedColor).
-                    ThenBy(x => x.transform.position.x).ThenBy(y => y.transform.position.y).ToList();
-            }
-        }
-
-        private void OnTriggerExit2D(Collider2D other)
-        {
-            var thisTileTransform = transform;
-            var directionToCollidedTile = thisTileTransform.position - other.gameObject.transform.position;
-            var directionToCollidedTileNormalized = directionToCollidedTile.normalized;
-            var direction =Vector3.Dot(thisTileTransform.up.normalized, directionToCollidedTileNormalized);
-            if (other.gameObject.GetComponent<BasicColor>() != null)
-            {
-                var collidedTile = other.gameObject.GetComponent<BasicColor>();
-                if (Mathf.Approximately(direction,1f)) //Up
-                {
-                    if (collidedTile.selectedColor == selectedColor)
-                    {
-                        if(matchedNeighbourTiles.Contains(collidedTile)) matchedNeighbourTiles.Remove(collidedTile);
-                        if (GridManager.Instance.matchedPlaceablesList.Contains(collidedTile)) GridManager.Instance.matchedPlaceablesList.Remove(collidedTile);
-                    }
-                }
-                else if (Mathf.Approximately(direction,-1f)) //Down
-                {
-                    if (collidedTile.selectedColor == selectedColor)
-                    {
-                        if(matchedNeighbourTiles.Contains(collidedTile)) matchedNeighbourTiles.Remove(collidedTile);
-                        if (GridManager.Instance.matchedPlaceablesList.Contains(collidedTile)) GridManager.Instance.matchedPlaceablesList.Remove(collidedTile);
-                    }
-                }
-                else if (Mathf.Approximately(direction,0f)) //Right or Left
-                {
-                    if (collidedTile.selectedColor == selectedColor)
-                    {
-                        if(matchedNeighbourTiles.Contains(collidedTile)) matchedNeighbourTiles.Remove(collidedTile);
-                        if (GridManager.Instance.matchedPlaceablesList.Contains(collidedTile)) GridManager.Instance.matchedPlaceablesList.Remove(collidedTile);
-                    }
-                }
-
-                GridManager.Instance.matchedPlaceablesList = GridManager.Instance.matchedPlaceablesList.Where(p => p != null).OrderBy(t => t.GetComponent<BasicColor>().selectedColor).
-                    ThenBy(x => x.transform.position.x).ThenBy(y => y.transform.position.y).ToList();
-            }
-        }
-
         private void OnMouseDown()
         {
-            foreach (var placeableToDestroy in destroyableItemsList)
+            if (GameManager.GameManager.Instance.gameState != GameState.CheckForCombos) return;
+            if (GridManager.Instance.matchedPlaceableItemsList.Contains(this))
             {
-                GridManager.Instance.DestroyPlaceable(placeableToDestroy.transform.position);
-                if (matchedNeighbourTiles.Contains(placeableToDestroy))
-                    matchedNeighbourTiles.Remove(placeableToDestroy);
+                GameManager.GameManager.Instance.ChangeState(GameState.OperatingGrid);
+                foreach (var placeableToDestroy in destroyableItemsList)
+                {
+                    if (matchedNeighbourItems.Contains(placeableToDestroy))
+                        matchedNeighbourItems.Remove(placeableToDestroy);
+                    if (GridManager.Instance.matchedPlaceableItemsList.Contains(placeableToDestroy))
+                        GridManager.Instance.matchedPlaceableItemsList.Remove(placeableToDestroy);
+                }
+                GridManager.Instance.DestroyPlaceable(destroyableItemsList);
             }
+            destroyableItemsList.Clear();
         }
 
         private void CheckMatches()
         {
-            if (GridManager.Instance.matchedPlaceablesList.Contains(this))
-            { 
-                foreach (var tile in matchedNeighbourTiles)
+            if (GameManager.GameManager.Instance.gameState != GameState.CheckForCombos) return;
+            if (GridManager.Instance.matchedPlaceableItemsList.Contains(this))
+            {
+                if (matchedNeighbourItems.Count == 0) return;
+                foreach (var basicColor in matchedNeighbourItems)
                 {
-                    if (!destroyableItemsList.Contains(tile)) destroyableItemsList.Add(tile);
-                }
-            
-                for (int i = 0; i < destroyableItemsList.Count; i++)
-                {
-                    foreach (var newTileMatchedNeighbourTile in destroyableItemsList[i].GetComponent<BasicColor>().matchedNeighbourTiles)
+                    if (!destroyableItemsList.Contains(basicColor)) destroyableItemsList.Add(basicColor);
+                    if (basicColor.matchedNeighbourItems.Count == 0) return;
+                    foreach (var basicColor2 in basicColor.matchedNeighbourItems)
                     {
-                        if (!destroyableItemsList.Contains(newTileMatchedNeighbourTile)) destroyableItemsList.Add(newTileMatchedNeighbourTile);
+                        if (!destroyableItemsList.Contains(basicColor2)) destroyableItemsList.Add(basicColor2);
+                        if (basicColor2.matchedNeighbourItems.Count == 0) return;
+                        foreach (var basicColor3 in basicColor2.matchedNeighbourItems)
+                        {
+                            if (!destroyableItemsList.Contains(basicColor3)) destroyableItemsList.Add(basicColor3);
+                        }
                     }
                 }
-            }
 
+                if (matchedNeighbourItems.Count == 0)
+                {
+                    destroyableItemsList.Clear();
+                }
+            }
+            CheckSprite();
+        }
+
+        private void CheckSprite()
+        {
             switch (destroyableItemsList.Count)
             {
                 case < 5:

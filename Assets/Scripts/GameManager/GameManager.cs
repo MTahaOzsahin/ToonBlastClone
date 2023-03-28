@@ -21,13 +21,10 @@ namespace GameManager
                 case GameState.GenerateGrid:
                     GridManager.Instance.GenerateGrid();
                     break;
-                case GameState.CheckForMatch:
+                case GameState.OperatingGrid:
+                    GridManager.Instance.matchedPlaceableItemsList.Clear();
                     break;
-                case GameState.CollapseMatch:
-                    break;
-                case GameState.OperateNewGrid:
-                    break;
-                case GameState.Wait:
+                case GameState.CheckForCombos:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
@@ -38,9 +35,7 @@ namespace GameManager
     public enum GameState
     {
         GenerateGrid,
-        CheckForMatch,
-        CollapseMatch,
-        OperateNewGrid,
-        Wait
+        OperatingGrid,
+        CheckForCombos
     }
 }
