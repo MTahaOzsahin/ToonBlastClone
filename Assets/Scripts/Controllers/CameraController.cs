@@ -1,9 +1,9 @@
-using System;
 using Grid;
 using UnityEngine;
 
 namespace Controllers
 {
+    [DefaultExecutionOrder(-10)]
     public class CameraController : MonoBehaviour
     {
         [Header("Game Camera")] 
@@ -16,6 +16,7 @@ namespace Controllers
 
         private void OnDisable()
         {
+            if (GridManager.Instance == null) return; 
             GridManager.Instance.OnGameStart -= CenterCamera;
         }
 

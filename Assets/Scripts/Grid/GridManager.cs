@@ -22,6 +22,14 @@ namespace Grid
 
         [Header("Wanted Items")] 
         [SerializeField] private List<BasePlaceable> wantedItemsList;
+        
+        [Header("Wanted Colors. If none selected will be all colors"),Tooltip("For test only")]
+        [SerializeField] private bool blue;
+        [SerializeField] private bool green;
+        [SerializeField] private bool pink;
+        [SerializeField] private bool purple;
+        [SerializeField] private bool red;
+        [SerializeField] private bool yellow;
 
         [Header("Matched Tiles")]
         public List<BasePlaceable> matchedPlaceableItemsList;
@@ -38,7 +46,7 @@ namespace Grid
 
         private void OnEnable()
         {
-            DOTween.SetTweensCapacity(500,50);
+            DOTween.SetTweensCapacity(500,50); //For 10x10 grid.
         }
 
         private void Update()
@@ -50,6 +58,7 @@ namespace Grid
         public void GenerateGrid()
         {
             ClearTiles();
+            CheckWantedColors();
             matchedPlaceableItemsList = new List<BasePlaceable>();
             columns = new List<BasePlaceable[]>();
             rows = new List<BasePlaceable[]>();
@@ -77,6 +86,35 @@ namespace Grid
             GameManager.GameManager.Instance.ChangeState(GameState.CheckForCombos);
         }
 
+        private void CheckWantedColors() //For test use.
+        {
+            if (!blue && !green && !pink && !purple && !red && !yellow) return;
+            if (!blue)
+            {
+                wantedItemsList.Remove(wantedItemsList.Find(x => x.GetComponent<BasicColor>().selectedColor == SelectedColor.Blue));
+            }
+            if (!green)
+            {
+                wantedItemsList.Remove(wantedItemsList.Find(x => x.GetComponent<BasicColor>().selectedColor == SelectedColor.Green));
+            }
+            if (!pink)
+            {
+                wantedItemsList.Remove(wantedItemsList.Find(x => x.GetComponent<BasicColor>().selectedColor == SelectedColor.Pink));
+            }
+            if (!purple)
+            {
+                wantedItemsList.Remove(wantedItemsList.Find(x => x.GetComponent<BasicColor>().selectedColor == SelectedColor.Purple));
+            }
+            if (!red)
+            {
+                wantedItemsList.Remove(wantedItemsList.Find(x => x.GetComponent<BasicColor>().selectedColor == SelectedColor.Red));
+            }
+            if (!yellow)
+            {
+                wantedItemsList.Remove(wantedItemsList.Find(x => x.GetComponent<BasicColor>().selectedColor == SelectedColor.Yellow));
+            }
+        }
+
         private void PlaceWantedItems()
         {
             foreach (var tile in tilesInGrid)
@@ -99,7 +137,12 @@ namespace Grid
         {
             return tilesInGrid.TryGetValue(position, out var tile) ? tile : null;
         }
-
+        
+        
+        /// <summary>
+        /// Destroy any placeable one by one.
+        /// </summary>
+        /// <param name="position"></param>
         public void DestroyPlaceable(Vector2 position)
         {
             GameManager.GameManager.Instance.ChangeState(GameState.OperatingGrid);
@@ -119,6 +162,10 @@ namespace Grid
             }
         }
 
+        /// <summary>
+        /// Destroy all placeable at once.
+        /// </summary>
+        /// <param name="basePlaceables"></param>
         public void DestroyPlaceable(List<BasicColor> basePlaceables)
         {
             GameManager.GameManager.Instance.ChangeState(GameState.OperatingGrid);
@@ -166,6 +213,9 @@ namespace Grid
             }
         }
 
+        /// <summary>
+        /// Checking tiles if the tile that under is empty. If so move.
+        /// </summary>
         private void OperateGrid()
         {
             count = 0;
@@ -215,6 +265,9 @@ namespace Grid
             GameManager.GameManager.Instance.ChangeState(GameState.CheckForCombos);
         }
 
+        /// <summary>
+        /// Checking all rows from start position and at end position to find matched items.
+        /// </summary>
         private void CheckForRows()
         {
             foreach (var tile in tilesInGrid)
@@ -274,6 +327,9 @@ namespace Grid
             }
         }
 
+        /// <summary>
+        /// Checking all columns from start position and end position to find matched items.
+        /// </summary>
         private void CheckForColumns()
         {
             foreach (var tile in tilesInGrid)
@@ -333,6 +389,9 @@ namespace Grid
             }
         }
 
+        /// <summary>
+        /// After checking all rows and columns combine it together.
+        /// </summary>
         private void CombineMatchedLists()
         {
             if (GameManager.GameManager.Instance.gameState != GameState.CheckForCombos) return;

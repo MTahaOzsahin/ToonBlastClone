@@ -162,6 +162,12 @@ MonoBehaviour:
   - {fileID: 8957700334759380325, guid: e16196bef80fa5046a80fccd5a898c7d, type: 3}
   - {fileID: 7355991955008864865, guid: b972585cf9621dd4198a71ac621313fd, type: 3}
   - {fileID: 3402067555417402138, guid: 61875f695f5b6a44898e6fc59a11333b, type: 3}
+  blue: 0
+  green: 0
+  pink: 0
+  purple: 0
+  red: 0
+  yellow: 0
   matchedPlaceableItemsList: []
 --- !u!4 &487862350
 Transform:
