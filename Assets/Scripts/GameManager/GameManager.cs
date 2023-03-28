@@ -22,7 +22,6 @@ namespace GameManager
                     GridManager.Instance.GenerateGrid();
                     break;
                 case GameState.OperatingGrid:
-                    GridManager.Instance.matchedPlaceableItemsList.Clear();
                     break;
                 case GameState.CheckForCombos:
                     break;

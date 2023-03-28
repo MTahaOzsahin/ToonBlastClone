@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using GameManager;
 using Grid;
 using UnityEngine;
@@ -29,18 +28,16 @@ namespace Placeables.Interactables.BasicColors
         [SerializeField] private List<Sprite> combosSpritesList;
 
         private SpriteRenderer spriteRenderer;
-        public List<BasicColor> destroyableItemsList;
         
         private void OnEnable()
         {
-            destroyableItemsList = new List<BasicColor> { this };
             spriteRenderer = GetComponent<SpriteRenderer>();
             matchedNeighbourItems = new List<BasicColor>();
         }
 
         private void Update()
         {
-            CheckMatches();
+            CheckSprite();
         }
 
         private void OnMouseDown()
@@ -48,51 +45,19 @@ namespace Placeables.Interactables.BasicColors
             if (GameManager.GameManager.Instance.gameState != GameState.CheckForCombos) return;
             if (GridManager.Instance.matchedPlaceableItemsList.Contains(this))
             {
-                GameManager.GameManager.Instance.ChangeState(GameState.OperatingGrid);
-                foreach (var placeableToDestroy in destroyableItemsList)
+                foreach (var placeableToDestroy in matchedNeighbourItems)
                 {
-                    if (matchedNeighbourItems.Contains(placeableToDestroy))
-                        matchedNeighbourItems.Remove(placeableToDestroy);
                     if (GridManager.Instance.matchedPlaceableItemsList.Contains(placeableToDestroy))
                         GridManager.Instance.matchedPlaceableItemsList.Remove(placeableToDestroy);
                 }
-                GridManager.Instance.DestroyPlaceable(destroyableItemsList);
+                GridManager.Instance.DestroyPlaceable(matchedNeighbourItems);
             }
-            destroyableItemsList.Clear();
-        }
-
-        private void CheckMatches()
-        {
-            if (GameManager.GameManager.Instance.gameState != GameState.CheckForCombos) return;
-            if (GridManager.Instance.matchedPlaceableItemsList.Contains(this))
-            {
-                if (matchedNeighbourItems.Count == 0) return;
-                foreach (var basicColor in matchedNeighbourItems)
-                {
-                    if (!destroyableItemsList.Contains(basicColor)) destroyableItemsList.Add(basicColor);
-                    if (basicColor.matchedNeighbourItems.Count == 0) return;
-                    foreach (var basicColor2 in basicColor.matchedNeighbourItems)
-                    {
-                        if (!destroyableItemsList.Contains(basicColor2)) destroyableItemsList.Add(basicColor2);
-                        if (basicColor2.matchedNeighbourItems.Count == 0) return;
-                        foreach (var basicColor3 in basicColor2.matchedNeighbourItems)
-                        {
-                            if (!destroyableItemsList.Contains(basicColor3)) destroyableItemsList.Add(basicColor3);
-                        }
-                    }
-                }
-
-                if (matchedNeighbourItems.Count == 0)
-                {
-                    destroyableItemsList.Clear();
-                }
-            }
-            CheckSprite();
+            matchedNeighbourItems.Clear();
         }
 
         private void CheckSprite()
         {
-            switch (destroyableItemsList.Count)
+            switch (matchedNeighbourItems.Count)
             {
                 case < 5:
                     spriteRenderer.sprite = combosSpritesList[0];
@@ -103,7 +68,7 @@ namespace Placeables.Interactables.BasicColors
                 case >= 8 and < 10:
                     spriteRenderer.sprite = combosSpritesList[2];
                     break;
-                case > 10:
+                case >= 10:
                     spriteRenderer.sprite = combosSpritesList[3];
                     break;
             }

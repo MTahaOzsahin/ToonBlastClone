@@ -13,7 +13,7 @@ namespace Grid
 {
     public class GridManager : SingletonMB<GridManager>
     {
-        [Header("Grid Width and Height")]
+        [Header("Grid Width and Height"),Tooltip("Please do not change during playMode!")]
         [SerializeField, Range(2, 10)] private int width;
         [SerializeField, Range(2, 10)] private int height;
 
@@ -22,7 +22,6 @@ namespace Grid
 
         [Header("Wanted Items")] 
         [SerializeField] private List<BasePlaceable> wantedItemsList;
-        
         
         [Header("Game Camera")] 
         [SerializeField] private Camera gameCamera;
@@ -34,7 +33,7 @@ namespace Grid
         private List<BasePlaceable[]> columns; // If needed.
         private List<BasePlaceable[]> rows; // If needed.
         
-        private int count = 0;
+        private int count;
         private List<Vector2> itemsWillMoveOldPositionList;
         private List<Vector2> itemsWillMoveNewPositionList;
 
@@ -53,7 +52,7 @@ namespace Grid
             tilesInGrid = new Dictionary<Vector2, BaseTile>();
             for (int i = 0; i < width; i++)
             {
-                columns.Add(new BasePlaceable[height * 2]);
+                columns.Add(new BasePlaceable[height * 3]);
             }
             for (int j = 0; j < height * 3; j++)
             {
@@ -123,7 +122,8 @@ namespace Grid
                     matchedPlaceableItemsList.Remove(tile.occupiedPrefab.GetComponent<BasePlaceable>()); 
                     Destroy(tile.GetComponentInChildren<BasePlaceable>().gameObject);
                     tile.occupiedPrefab = null;
-                    // columns[(int)placeablePosition.x][(int)placeablePosition.y] = null;
+                    columns[(int)placeablePosition.x][(int)placeablePosition.y] = null;
+                    rows[(int)placeablePosition.y][(int)placeablePosition.x] = null;
                     CreateWantedItemsAtPosition(new Vector2((int)position.x,(int)position.y + height * 2));
                 }
             }
@@ -144,7 +144,8 @@ namespace Grid
                         matchedPlaceableItemsList.Remove(tile.occupiedPrefab.GetComponent<BasePlaceable>()); 
                         Destroy(tile.GetComponentInChildren<BasePlaceable>().gameObject);
                         tile.occupiedPrefab = null;
-                        // columns[(int)placeablePosition.x][(int)placeablePosition.y] = null;
+                        columns[(int)placeablePosition.x][(int)placeablePosition.y] = null;
+                        rows[(int)placeablePosition.y][(int)placeablePosition.x] = null;
                         CreateWantedItemsAtPosition(new Vector2((int)position.x,(int)position.y + height * 2));
                     }
                 }
@@ -161,6 +162,8 @@ namespace Grid
             spawnedItem.name = $"{wantedItemsList[random].name}";
             spawnedItem.GetComponent<SpriteRenderer>().sortingOrder = (int)position.y;
             GetTileAtPosition(position).occupiedPrefab = spawnedItem;
+            columns[(int)position.x][(int)position.y] = spawnedItem;
+            rows[(int)position.y][(int)position.x] = spawnedItem;
         }
         
 
@@ -231,16 +234,17 @@ namespace Grid
                     for (int i = 1; i < width; i++)
                     {
                         if ( tile.Key.x + i >= width) break;
-                        var neighbourTile = GetTileAtPosition(new Vector2(tile.Key.x + i, tile.Key.y));
-                        if (neighbourTile.occupiedPrefab.GetComponent<BasicColor>().selectedColor == tile.Value.occupiedPrefab.GetComponent<BasicColor>().selectedColor)
+                        var originItem = tile.Value.occupiedPrefab.GetComponent<BasicColor>();
+                        var neighbourTile = GetTileAtPosition(new Vector2(tile.Key.x + i, tile.Key.y)).occupiedPrefab.GetComponent<BasicColor>();
+                        if (neighbourTile.selectedColor == originItem.selectedColor)
                         {
-                            if (!tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Contains(neighbourTile.occupiedPrefab.GetComponent<BasicColor>()))
+                            if (!originItem.matchedNeighbourItems.Contains(neighbourTile))
                             {
-                                tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Add(neighbourTile.occupiedPrefab.GetComponent<BasicColor>());
+                                originItem.matchedNeighbourItems.Add(neighbourTile);
                             }
-                            if (!tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Contains(tile.Value.occupiedPrefab.GetComponent<BasicColor>()))
+                            if (!originItem.matchedNeighbourItems.Contains(originItem))
                             {
-                                tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Add(tile.Value.occupiedPrefab.GetComponent<BasicColor>());
+                                originItem.matchedNeighbourItems.Add(originItem);
                             }
                         }
                         else
@@ -258,16 +262,17 @@ namespace Grid
                     for (int j = 1; j < width; j++)
                     {
                         if ( tile.Key.x - j < 0) break;
-                        var neighbourTile = GetTileAtPosition(new Vector2(tile.Key.x - j, tile.Key.y));
-                        if (neighbourTile.occupiedPrefab.GetComponent<BasicColor>().selectedColor == tile.Value.occupiedPrefab.GetComponent<BasicColor>().selectedColor)
+                        var originItem = tile.Value.occupiedPrefab.GetComponent<BasicColor>();
+                        var neighbourTile = GetTileAtPosition(new Vector2(tile.Key.x - j, tile.Key.y)).occupiedPrefab.GetComponent<BasicColor>();
+                        if (neighbourTile.selectedColor == originItem.selectedColor)
                         {
-                            if (!tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Contains(neighbourTile.occupiedPrefab.GetComponent<BasicColor>()))
+                            if (!originItem.matchedNeighbourItems.Contains(neighbourTile))
                             {
-                                tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Add(neighbourTile.occupiedPrefab.GetComponent<BasicColor>());
+                                originItem.matchedNeighbourItems.Add(neighbourTile);
                             }
-                            if (!tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Contains(tile.Value.occupiedPrefab.GetComponent<BasicColor>()))
+                            if (!originItem.matchedNeighbourItems.Contains(originItem))
                             {
-                                tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Add(tile.Value.occupiedPrefab.GetComponent<BasicColor>());
+                                originItem.matchedNeighbourItems.Add(originItem);
                             }
                         }
                         else
@@ -288,16 +293,17 @@ namespace Grid
                     for (int i = 1; i < height; i++)
                     {
                         if (tile.Key.y + i >= height) break;
-                        var neighbourTile = GetTileAtPosition(new Vector2(tile.Key.x, tile.Key.y + i));
-                        if (neighbourTile.occupiedPrefab.GetComponent<BasicColor>().selectedColor == tile.Value.occupiedPrefab.GetComponent<BasicColor>().selectedColor)
+                        var originItem = tile.Value.occupiedPrefab.GetComponent<BasicColor>();
+                        var neighbourTile = GetTileAtPosition(new Vector2(tile.Key.x, tile.Key.y + i)).occupiedPrefab.GetComponent<BasicColor>();
+                        if (neighbourTile.selectedColor == originItem.selectedColor)
                         {
-                            if (!tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Contains(neighbourTile.occupiedPrefab.GetComponent<BasicColor>()))
+                            if (!originItem.matchedNeighbourItems.Contains(neighbourTile))
                             {
-                                tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Add(neighbourTile.occupiedPrefab.GetComponent<BasicColor>());
+                                originItem.matchedNeighbourItems.Add(neighbourTile);
                             }
-                            if (!tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Contains(tile.Value.occupiedPrefab.GetComponent<BasicColor>()))
+                            if (!originItem.matchedNeighbourItems.Contains(originItem))
                             {
-                                tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Add(tile.Value.occupiedPrefab.GetComponent<BasicColor>());
+                                originItem.matchedNeighbourItems.Add(originItem);
                             }
                         }
                         else
@@ -315,16 +321,17 @@ namespace Grid
                     for (int j = 1; j < height; j++)
                     {
                         if (tile.Key.y - j < 0) break;
-                        var neighbourTile = GetTileAtPosition(new Vector2(tile.Key.x, tile.Key.y - j));
-                        if (neighbourTile.occupiedPrefab.GetComponent<BasicColor>().selectedColor == tile.Value.occupiedPrefab.GetComponent<BasicColor>().selectedColor)
+                        var originItem = tile.Value.occupiedPrefab.GetComponent<BasicColor>();
+                        var neighbourTile = GetTileAtPosition(new Vector2(tile.Key.x, tile.Key.y - j)).occupiedPrefab.GetComponent<BasicColor>();
+                        if (neighbourTile.selectedColor == originItem.selectedColor)
                         {
-                            if (!tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Contains(neighbourTile.occupiedPrefab.GetComponent<BasicColor>()))
+                            if (!originItem.matchedNeighbourItems.Contains(neighbourTile))
                             {
-                                tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Add(neighbourTile.occupiedPrefab.GetComponent<BasicColor>());
+                                originItem.matchedNeighbourItems.Add(neighbourTile);
                             }
-                            if (!tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Contains(tile.Value.occupiedPrefab.GetComponent<BasicColor>()))
+                            if (!originItem.matchedNeighbourItems.Contains(originItem))
                             {
-                                tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Add(tile.Value.occupiedPrefab.GetComponent<BasicColor>());
+                                originItem.matchedNeighbourItems.Add(originItem);
                             }
                         }
                         else
@@ -346,21 +353,67 @@ namespace Grid
             {
                 if (tile.Value.occupiedPrefab != null && tile.Key.y < height)
                 {
-                    if (tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Count != 0)
+                    var originItem = tile.Value.occupiedPrefab.GetComponent<BasicColor>();
+                    if (originItem.matchedNeighbourItems.Count == 0) continue;
+                    foreach (var matchedNeighbourItem in originItem.matchedNeighbourItems)
                     {
-                        foreach (var matchedItem in tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems)
+                        tempList.Add(matchedNeighbourItem);
+                        if (originItem.matchedNeighbourItems.Count != matchedNeighbourItem.matchedNeighbourItems.Count )
                         {
-                            tempList.Add(matchedItem);
+                            for (int i = 0; i < matchedNeighbourItem.matchedNeighbourItems.Count; i++)
+                            {
+                                if (!matchedNeighbourItem.matchedNeighbourItems[i].matchedNeighbourItems.Contains(originItem)) matchedNeighbourItem.matchedNeighbourItems[i].matchedNeighbourItems.Add(originItem);
+                            }
                         }
                     }
                 }
             }
+
+            matchedPlaceableItemsList.Clear();
             foreach (var placeableItem in tempList)
             {
                 if (!matchedPlaceableItemsList.Contains(placeableItem)) matchedPlaceableItemsList.Add(placeableItem);
             }
+            matchedPlaceableItemsList = matchedPlaceableItemsList.Where(i => i != null).OrderBy(t => t.GetComponent<BasicColor>().selectedColor)
+                .ThenBy(x => x.transform.position.x).ThenBy(y => y.transform.position.y).ToList();
+            CheckForShuffle();
+        }
 
-            matchedPlaceableItemsList = matchedPlaceableItemsList.Where(x => x != null).ToList();
+        private void CheckForShuffle()
+        {
+            if (GameManager.GameManager.Instance.gameState != GameState.CheckForCombos) return;
+            if (matchedPlaceableItemsList.Count == 0)
+            {
+                GameManager.GameManager.Instance.ChangeState(GameState.OperatingGrid);
+                var tempList = new List<BasePlaceable>();
+                var random = new System.Random();
+                foreach (var baseTile in tilesInGrid)
+                {
+                    if (baseTile.Value.occupiedPrefab != null)
+                    {
+                        tempList.Add(baseTile.Value.occupiedPrefab);
+                        Destroy(baseTile.Value.GetComponentInChildren<BasicColor>().gameObject);
+                        baseTile.Value.occupiedPrefab = null;
+                    }
+                }
+                tempList = tempList.OrderBy(x => random.Next()).ToList();
+                foreach (var baseTile in tilesInGrid)
+                {
+                    if (baseTile.Key.y >= height) continue;
+                    if (tempList.Count != 0)
+                    {
+                        var spawnedItem = Instantiate(tempList.First(), baseTile.Key, Quaternion.identity,
+                            baseTile.Value.transform);
+                        baseTile.Value.occupiedPrefab = spawnedItem;
+                        spawnedItem.name = $"{baseTile.Value.occupiedPrefab.name}";
+                        spawnedItem.GetComponent<SpriteRenderer>().sortingOrder = (int)baseTile.Key.y;
+                        spawnedItem.GetComponent<BasicColor>().enabled = true;
+                        spawnedItem.GetComponent<BoxCollider2D>().enabled = true;
+                        tempList.Remove(tempList.First());
+                    }
+                }
+                GameManager.GameManager.Instance.ChangeState(GameState.CheckForCombos);
+            }
         }
     }
 }

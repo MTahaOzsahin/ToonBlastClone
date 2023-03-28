@@ -10,18 +10,13 @@ namespace CustomInspector
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
-            GridManager gridManager = (GridManager)target;
-            if (GUILayout.Button("Enter Play Mode"))
-            {
-                EditorApplication.EnterPlaymode();
-            }
+            var gridManager = (GridManager)target;
             if(GUILayout.Button("Generate Grid Button"))
             {
-                gridManager.GenerateGrid();
-            }
-            if(GUILayout.Button("Exit Play Mode"))
-            {
-                EditorApplication.ExitPlaymode();
+                if (EditorApplication.isPlaying)
+                {
+                    gridManager.GenerateGrid();
+                }
             }
         }
     }
