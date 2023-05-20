@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,13 +48,14 @@ namespace Grid
         private void OnEnable()
         {
             DOTween.SetTweensCapacity(500,50); //For 10x10 grid.
+            GameManager.GameManager.Instance.checkForCombos += CombineMatchedLists;
         }
 
-        private void Update()
+        private void OnDisable()
         {
-            OperateGrid();
-            CombineMatchedLists();
+            GameManager.GameManager.Instance.checkForCombos -= CombineMatchedLists;
         }
+        
 
         public void GenerateGrid()
         {
@@ -187,7 +189,7 @@ namespace Grid
                     }
                 }
             }
-            
+            GameManager.GameManager.Instance.ChangeState(GameState.CheckForCombos);
         }
 
         private void CreateWantedItemsAtPosition(Vector2 position)
@@ -216,57 +218,57 @@ namespace Grid
         /// <summary>
         /// Checking tiles if the tile that under is empty. If so move.
         /// </summary>
-        private void OperateGrid()
-        {
-            count = 0;
-            itemsWillMoveOldPositionList = new List<Vector2>();
-            itemsWillMoveNewPositionList = new List<Vector2>();
-            foreach (var tile in tilesInGrid)
-            {
-                if (tile.Value.occupiedPrefab != null && tile.Key.y - 1 >= 0)
-                {
-                    var originPosition = tile.Key;
-                    if (GetTileAtPosition(new Vector2(originPosition.x,originPosition.y - 1)).occupiedPrefab == null)
-                    {
-                        count++;
-                        itemsWillMoveOldPositionList.Add(originPosition);
-                        itemsWillMoveNewPositionList.Add(new Vector2(originPosition.x,originPosition.y - 1));
-                    }
-                }
-            }
-
-            if (count != 0)
-            {
-                StartCoroutine(MovePlaceableItem(itemsWillMoveOldPositionList,itemsWillMoveNewPositionList));
-            }
-        }
-
-        private IEnumerator MovePlaceableItem(List<Vector2> oldPosition , List<Vector2> newPosition)
-        {
-            GameManager.GameManager.Instance.ChangeState(GameState.OperatingGrid);
-            for (int i = 0; i < oldPosition.Count; i++)
-            {
-                GetTileAtPosition(oldPosition[i]).occupiedPrefab = null;
-                var newItem = GetTileAtPosition(oldPosition[i]).GetComponentInChildren<BasePlaceable>();
-                var newItemTransform = newItem.transform;
-                newItemTransform.parent = GetTileAtPosition(newPosition[i]).transform;
-                newItemTransform.DOLocalMove(Vector3.zero, 20f * Time.fixedDeltaTime, true);
-                newItem.GetComponent<SpriteRenderer>().sortingOrder = (int)newPosition[i].y;
-                GetTileAtPosition(newPosition[i]).occupiedPrefab = newItem;
-            }
-            yield return new WaitForSeconds(22f* Time.fixedDeltaTime);
-            foreach (var tile in tilesInGrid)
-            {
-                if (tile.Value.occupiedPrefab != null && tile.Key.y < height)
-                {
-                    tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Clear();
-                }
-            }
-            GameManager.GameManager.Instance.ChangeState(GameState.CheckForCombos);
-        }
+        // private void OperateGrid()
+        // {
+        //     count = 0;
+        //     itemsWillMoveOldPositionList = new List<Vector2>();
+        //     itemsWillMoveNewPositionList = new List<Vector2>();
+        //     foreach (var tile in tilesInGrid)
+        //     {
+        //         if (tile.Value.occupiedPrefab != null && tile.Key.y - 1 >= 0)
+        //         {
+        //             var originPosition = tile.Key;
+        //             if (GetTileAtPosition(new Vector2(originPosition.x,originPosition.y - 1)).occupiedPrefab == null)
+        //             {
+        //                 count++;
+        //                 itemsWillMoveOldPositionList.Add(originPosition);
+        //                 itemsWillMoveNewPositionList.Add(new Vector2(originPosition.x,originPosition.y - 1));
+        //             }
+        //         }
+        //     }
+        //
+        //     if (count != 0)
+        //     {
+        //         StartCoroutine(MovePlaceableItem(itemsWillMoveOldPositionList,itemsWillMoveNewPositionList));
+        //     }
+        // }
+        //
+        // private IEnumerator MovePlaceableItem(List<Vector2> oldPosition , List<Vector2> newPosition)
+        // {
+        //     GameManager.GameManager.Instance.ChangeState(GameState.OperatingGrid);
+        //     for (int i = 0; i < oldPosition.Count; i++)
+        //     {
+        //         GetTileAtPosition(oldPosition[i]).occupiedPrefab = null;
+        //         var newItem = GetTileAtPosition(oldPosition[i]).GetComponentInChildren<BasePlaceable>();
+        //         var newItemTransform = newItem.transform;
+        //         newItemTransform.parent = GetTileAtPosition(newPosition[i]).transform;
+        //         newItemTransform.DOLocalMove(Vector3.zero, 20f * Time.fixedDeltaTime, true);
+        //         newItem.GetComponent<SpriteRenderer>().sortingOrder = (int)newPosition[i].y;
+        //         GetTileAtPosition(newPosition[i]).occupiedPrefab = newItem;
+        //     }
+        //     yield return new WaitForSeconds(22f* Time.fixedDeltaTime);
+        //     foreach (var tile in tilesInGrid)
+        //     {
+        //         if (tile.Value.occupiedPrefab != null && tile.Key.y < height)
+        //         {
+        //             tile.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Clear();
+        //         }
+        //     }
+        //     GameManager.GameManager.Instance.ChangeState(GameState.CheckForCombos);
+        // }
 
         /// <summary>
-        /// Checking all rows from start position and at end position to find matched items.
+        /// Checking all rows from start position until end position to find matched items.
         /// </summary>
         private void CheckForRows()
         {
@@ -292,11 +294,22 @@ namespace Grid
                         }
                         else
                         {
+                            if (originItem.matchedNeighbourItems.Contains(neighbourTile))
+                            {
+                                originItem.matchedNeighbourItems.Remove(neighbourTile);
+                            }
                             break;
                         }
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Checking all rows from end position until start position to find matched items.
+        /// </summary>
+        private void CheckForRowsReverse()
+        {
             var reverseTilesInGrid = tilesInGrid.Reverse();
             foreach (var tile in reverseTilesInGrid)
             {
@@ -320,6 +333,10 @@ namespace Grid
                         }
                         else
                         {
+                            if (originItem.matchedNeighbourItems.Contains(neighbourTile))
+                            {
+                                originItem.matchedNeighbourItems.Remove(neighbourTile);
+                            }
                             break;
                         }
                     }
@@ -328,7 +345,7 @@ namespace Grid
         }
 
         /// <summary>
-        /// Checking all columns from start position and end position to find matched items.
+        /// Checking all columns from start position until end position to find matched items.
         /// </summary>
         private void CheckForColumns()
         {
@@ -354,11 +371,22 @@ namespace Grid
                         }
                         else
                         {
+                            if (originItem.matchedNeighbourItems.Contains(neighbourTile))
+                            {
+                                originItem.matchedNeighbourItems.Remove(neighbourTile);
+                            }
                             break;
                         }
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Checking all columns from end position until start position to find matched items.
+        /// </summary>
+        private void CheckForColumnsReverse()
+        {
             var reverseTilesInGrid = tilesInGrid.Reverse();
             foreach (var tile in reverseTilesInGrid)
             {
@@ -382,6 +410,10 @@ namespace Grid
                         }
                         else
                         {
+                            if (originItem.matchedNeighbourItems.Contains(neighbourTile))
+                            {
+                                originItem.matchedNeighbourItems.Remove(neighbourTile);
+                            }
                             break;
                         }
                     }
@@ -396,7 +428,9 @@ namespace Grid
         {
             if (GameManager.GameManager.Instance.gameState != GameState.CheckForCombos) return;
             CheckForColumns();
+            CheckForColumnsReverse();
             CheckForRows();
+            CheckForRowsReverse();
             var tempList = new List<BasePlaceable>();
             foreach (var tile in tilesInGrid)
             {
@@ -425,7 +459,8 @@ namespace Grid
             }
             matchedPlaceableItemsList = matchedPlaceableItemsList.Where(i => i != null).OrderBy(t => t.GetComponent<BasicColor>().selectedColor)
                 .ThenBy(x => x.transform.position.x).ThenBy(y => y.transform.position.y).ToList();
-            CheckForShuffle();
+            GameManager.GameManager.Instance.ChangeState(GameState.WaitForInput);
+            // CheckForShuffle();
         }
 
         private void CheckForShuffle()

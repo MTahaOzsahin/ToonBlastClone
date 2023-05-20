@@ -111,12 +111,12 @@ Rigidbody2D:
   m_Mass: 0.0001
   m_LinearDrag: 0
   m_AngularDrag: 0
-  m_GravityScale: 0
+  m_GravityScale: 1
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 0
   m_CollisionDetection: 1
-  m_Constraints: 4
+  m_Constraints: 7
 --- !u!61 &507413232262657004
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -156,7 +156,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   selectedColor: 2
-  matchedNeighbourTiles: []
+  matchedNeighbourItems: []
   combosSpritesList:
   - {fileID: 21300000, guid: d045c632bd54b224886fde3b90e10a37, type: 3}
   - {fileID: 21300000, guid: 57d0483cb0cd7f44eb45832ae6793e71, type: 3}

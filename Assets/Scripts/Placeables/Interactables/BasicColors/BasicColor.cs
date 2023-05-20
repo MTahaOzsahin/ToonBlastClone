@@ -40,11 +40,14 @@ namespace Placeables.Interactables.BasicColors
             CheckSprite();
         }
 
+        
+
         private void OnMouseDown()
         {
-            if (GameManager.GameManager.Instance.gameState != GameState.CheckForCombos) return;
+            if (GameManager.GameManager.Instance.gameState != GameState.WaitForInput) return;
             if (GridManager.Instance.matchedPlaceableItemsList.Contains(this))
             {
+                GameManager.GameManager.Instance.ChangeState(GameState.OperatingGrid);
                 foreach (var placeableToDestroy in matchedNeighbourItems)
                 {
                     if (GridManager.Instance.matchedPlaceableItemsList.Contains(placeableToDestroy))
@@ -52,7 +55,7 @@ namespace Placeables.Interactables.BasicColors
                 }
                 GridManager.Instance.DestroyPlaceable(matchedNeighbourItems);
             }
-            matchedNeighbourItems.Clear();
+            // matchedNeighbourItems.Clear();
         }
 
         private void CheckSprite()

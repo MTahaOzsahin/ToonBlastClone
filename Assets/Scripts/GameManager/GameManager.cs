@@ -6,6 +6,7 @@ namespace GameManager
     public class GameManager : SingletonMB<GameManager>
     {
         public GameState gameState;
+        public Action checkForCombos;
 
         private void Start()
         {
@@ -22,9 +23,12 @@ namespace GameManager
                     break;
                 case GameState.OperatingGrid:
                     break;
+                case GameState.WaitForInput:
+                    break;
                 case GameState.CreateBonusItem:
                     break;
                 case GameState.CheckForCombos:
+                    checkForCombos?.Invoke();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
@@ -36,6 +40,7 @@ namespace GameManager
     {
         GenerateGrid,
         OperatingGrid,
+        WaitForInput,
         CreateBonusItem,
         CheckForCombos
     }
