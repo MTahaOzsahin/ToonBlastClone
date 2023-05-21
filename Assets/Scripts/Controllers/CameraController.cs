@@ -22,15 +22,20 @@ namespace Controllers
 
         private void CenterCamera(int width,int height)
         {
-            gameCamera.transform.position = new Vector3((float)width / 2 - 0.5f, (float)height / 2 + 1.5f, -10f);
-            gameCamera.fieldOfView = width switch
+            gameCamera.transform.position = new Vector3((float)width / 2 - 0.5f, (float)height / 2 + 0.5f, -10f);
+            gameCamera.orthographicSize = width switch
             {
-                7 => 68,
-                8 => 76,
-                9 => 84,
-                10 => 92,
-                _ => 60
+                3 => 4,
+                4 => 4.5f,
+                5 => 5.5f,
+                6 => 6f,
+                7 => 7,
+                8 => 8,
+                9 => 9,
+                10 => 10,
+                _ => 4
             };
+            GridOperator.Instance.cameraTopBound = (height / 2f) + 0.5f +gameCamera.orthographicSize;
         }
     }
 }

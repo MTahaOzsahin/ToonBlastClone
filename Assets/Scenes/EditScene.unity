@@ -155,8 +155,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7dbf2c1faf9ab7140981517a80e0b3a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridWidth: 5
-  gridHeight: 5
+  gridWidth: 4
+  gridHeight: 4
   tilePrefab: {fileID: -2510868045715180608, guid: 4c82ed1b8d3161e47bae379ebcfd1e05, type: 3}
   wantedItemsList:
   - {fileID: 2419217782211578260, guid: 3a2fd711f38c81a458649d47963a4582, type: 3}
@@ -404,7 +404,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 92
-  orthographic: 0
+  orthographic: 1
   orthographic size: 5
   m_Depth: -1
   m_CullingMask:

@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using GameManager;
 using Placeables;
 using Placeables.Interactables.BasicColors;
@@ -12,6 +11,7 @@ namespace Grid
     public class GridOperator : SingletonMB<GridOperator>
     {
         public List<BasePlaceable> createdPlaceableList;
+        public float cameraTopBound;
 
         private void OnEnable()
         {
@@ -55,8 +55,16 @@ namespace Grid
                         createdPlaceableList.Remove(placeableItem);
                         Destroy(tile.GetComponentInChildren<BasePlaceable>().gameObject);
                         tile.occupiedPrefab = null;
-                        var spawnedItem = CreateWantedItemsAtPosition(new Vector2((int)adjustedPosition.x,(int)adjustedPosition.y + 10));
-                        createdPlaceableList.Add(spawnedItem);
+                        if (cameraTopBound == 0f)
+                        {
+                            var spawnedItem = CreateWantedItemsAtPosition(new Vector2((int)adjustedPosition.x,(int)adjustedPosition.y + 10));
+                            createdPlaceableList.Add(spawnedItem);
+                        }
+                        else
+                        {
+                            var spawnedItem = CreateWantedItemsAtPosition(new Vector2((int)adjustedPosition.x,(int)adjustedPosition.y + cameraTopBound + 1));
+                            createdPlaceableList.Add(spawnedItem);
+                        }
                     }
                 }
             }
