@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using GameManager;
 using Placeables;
 using Placeables.Interactables.BasicColors;
@@ -29,17 +31,10 @@ namespace Grid
                     spawnedItem.GetComponent<SpriteRenderer>().sortingOrder = (int)tile.Key.y;
                     tile.Value.occupiedPrefab = spawnedItem.GetComponent<BasePlaceable>();
                     createdPlaceableList.Add(spawnedItem);
-                    // columns[(int)tile.Key.x][(int)tile.Key.y] = spawnedItem;
-                    // rows[(int)tile.Key.y][(int)tile.Key.x] = spawnedItem;
                 }
             }
         }
 
-        public void RePlacedWantedItemsToGrid()
-        {
-            
-        }
-        
         /// <summary>
         /// Destroy all placeable at once.
         /// </summary>
@@ -50,30 +45,55 @@ namespace Grid
             foreach (var placeableItem in basePlaceables)
             {
                 var position = placeableItem.transform.position;
-                var adjustedPosition = new Vector2(position.x, Mathf.Round(position.y));
+                var adjustedPosition = new Vector2(Mathf.Round(position.x), Mathf.Round(position.y));
                 if (GridManager.Instance.tilesInGrid.ContainsKey(adjustedPosition))
                 {
                     GridManager.Instance.tilesInGrid.TryGetValue(adjustedPosition, out var tile);
                     if (tile != null)
                     {
-                        var placeablePosition = tile.transform.position;
                         GridManager.Instance.matchedPlaceableItemsList.Remove(tile.occupiedPrefab.GetComponent<BasePlaceable>()); 
+                        createdPlaceableList.Remove(placeableItem);
                         Destroy(tile.GetComponentInChildren<BasePlaceable>().gameObject);
                         tile.occupiedPrefab = null;
-                        CreateWantedItemsAtPosition(new Vector2((int)adjustedPosition.x,(int)adjustedPosition.y + 10));
+                        var spawnedItem = CreateWantedItemsAtPosition(new Vector2((int)adjustedPosition.x,(int)adjustedPosition.y + 10));
+                        createdPlaceableList.Add(spawnedItem);
                     }
                 }
+            }
+            StartCoroutine(RePlacedWantedItemsToGrid());
+        }
+        
+        private IEnumerator RePlacedWantedItemsToGrid()
+        {
+            yield return new WaitForSeconds(1f);
+            foreach (var basePlaceable in createdPlaceableList)
+            {
+                var basePlaceablePosition = basePlaceable.transform.position;
+                var roundedPosition = new Vector2(Mathf.Round(basePlaceablePosition.x), Mathf.Round(basePlaceablePosition.y));
+                GridManager.Instance.tilesInGrid.TryGetValue(roundedPosition, out var tile);
+                if (tile != null)
+                {
+                    tile.occupiedPrefab = basePlaceable;
+                    basePlaceable.transform.parent = tile.transform;
+                    basePlaceable.GetComponent<SpriteRenderer>().sortingOrder = (int)(roundedPosition.y);
+                }
+                else
+                {
+                    yield break;
+                }
+                basePlaceable.transform.localPosition = Vector2.zero;
             }
             GameManager.GameManager.Instance.ChangeState(GameState.CheckForCombos);
         }
 
-        private void CreateWantedItemsAtPosition(Vector2 position)
+        private BasePlaceable CreateWantedItemsAtPosition(Vector2 position)
         {
             var newPosition = new Vector2(position.x, position.y);
             var random = Random.Range(1, GridManager.Instance.wantedItemsList.Count);
             var spawnedItem = Instantiate(GridManager.Instance.wantedItemsList[random], newPosition, Quaternion.identity);
             spawnedItem.name = $"{GridManager.Instance.wantedItemsList[random].name}";
             spawnedItem.GetComponent<SpriteRenderer>().sortingOrder = (int)position.y;
+            return spawnedItem;
         }
     }
 }

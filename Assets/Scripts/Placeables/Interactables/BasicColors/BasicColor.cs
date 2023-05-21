@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using GameManager;
 using Grid;
 using UnityEngine;
@@ -38,17 +39,9 @@ namespace Placeables.Interactables.BasicColors
         private void Update()
         {
             CheckSprite();
-            ClapPosition();
+            CheckNull();
         }
         
-        private void ClapPosition()
-        {
-            if (GameManager.GameManager.Instance.gameState == GameState.WaitForInput)
-            {
-                transform.localPosition = Vector2.zero;
-            }
-        }
-
         private void OnMouseDown()
         {
             if (GameManager.GameManager.Instance.gameState != GameState.WaitForInput) return;
@@ -62,7 +55,20 @@ namespace Placeables.Interactables.BasicColors
                 }
                 GridOperator.Instance.DestroyPlaceable(matchedNeighbourItems);
             }
-            // matchedNeighbourItems.Clear();
+        }
+
+        private void CheckNull()
+        {
+            var nullList = matchedNeighbourItems.Where(x => x == null);
+            var basicColors = nullList as BasicColor[] ?? nullList.ToArray();
+            if (basicColors.Count() != 0)
+            {
+                foreach (var nullItem in basicColors)
+                {
+                    matchedNeighbourItems.Remove(nullItem);
+                    Debug.Log("its worked");
+                }
+            }
         }
 
         private void CheckSprite()

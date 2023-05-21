@@ -31,13 +31,12 @@ namespace Grid
                 {
                     var spawnedTile = Instantiate(GridManager.Instance.tilePrefab, new Vector3(x, y), Quaternion.identity,transform);
                     spawnedTile.name = $"Tile {x} {y}";
-                    spawnedTile.GetComponentInChildren<SpriteRenderer>().sortingOrder = y;
                     GridManager.Instance.tilesInGrid[new Vector2(x, y)] = spawnedTile;
                 }
             }
             GridOperator.Instance.CreateWantedItems();
             onGameStart?.Invoke(GridManager.Instance.gridWidth,GridManager.Instance.gridHeight);
-            GameManager.GameManager.Instance.ChangeState(GameState.CheckForCombos);
+            GameManager.GameManager.Instance.ChangeState(GameState.GetGridData);
         }
         
         private void CheckWantedColors() //For test use.

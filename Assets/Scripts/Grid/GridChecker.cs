@@ -13,12 +13,12 @@ namespace Grid
     {
         private void OnEnable()
         {
-            GameManager.GameManager.Instance.checkForCombos += CombineMatchedLists;
+            GameManager.GameManager.Instance.getGridData += CombineMatchedLists;
         }
 
         private void OnDisable()
         {
-            GameManager.GameManager.Instance.checkForCombos -= CombineMatchedLists;
+            GameManager.GameManager.Instance.getGridData -= CombineMatchedLists;
         }
         
         private BaseTile GetTileAtPosition(Vector2 position) //If needed.
@@ -182,7 +182,6 @@ namespace Grid
         /// </summary>
         private void CombineMatchedLists()
         {
-            if (GameManager.GameManager.Instance.gameState != GameState.CheckForCombos) return;
             CheckForColumns();
             CheckForColumnsReverse();
             CheckForRows();
@@ -213,8 +212,11 @@ namespace Grid
             {
                 if (!GridManager.Instance.matchedPlaceableItemsList.Contains(placeableItem)) GridManager.Instance.matchedPlaceableItemsList.Add(placeableItem);
             }
-            GridManager.Instance.matchedPlaceableItemsList = GridManager.Instance.matchedPlaceableItemsList.Where(i => i != null).OrderBy(t => t.GetComponent<BasicColor>().selectedColor)
-                .ThenBy(x => x.transform.position.x).ThenBy(y => y.transform.position.y).ToList();
+            GridManager.Instance.matchedPlaceableItemsList = GridManager.Instance.matchedPlaceableItemsList
+                .Where(i => i != null)
+                .OrderBy(t => t.GetComponent<BasicColor>().selectedColor)
+                .ThenBy(x => Mathf.Round(x.transform.position.x))
+                .ThenBy(y => Mathf.Round(y.transform.position.y)).ToList();
             GameManager.GameManager.Instance.ChangeState(GameState.WaitForInput);
             // CheckForShuffle();
         }
