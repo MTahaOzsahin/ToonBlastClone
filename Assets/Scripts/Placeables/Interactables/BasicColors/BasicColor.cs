@@ -66,7 +66,6 @@ namespace Placeables.Interactables.BasicColors
                 foreach (var nullItem in basicColors)
                 {
                     matchedNeighbourItems.Remove(nullItem);
-                    Debug.Log("its worked");
                 }
             }
         }

@@ -183,8 +183,8 @@ namespace Grid
         private void CombineMatchedLists()
         {
             CheckForColumns();
-            CheckForColumnsReverse();
             CheckForRows();
+            CheckForColumnsReverse();
             CheckForRowsReverse();
             var tempList = new List<BasePlaceable>();
             foreach (var tile in GridManager.Instance.tilesInGrid)
