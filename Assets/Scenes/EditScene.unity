@@ -133,6 +133,9 @@ GameObject:
   m_Component:
   - component: {fileID: 487862350}
   - component: {fileID: 487862349}
+  - component: {fileID: 487862353}
+  - component: {fileID: 487862352}
+  - component: {fileID: 487862351}
   m_Layer: 0
   m_Name: '[GridManager]'
   m_TagString: Untagged
@@ -152,8 +155,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7dbf2c1faf9ab7140981517a80e0b3a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 6
-  height: 6
+  gridWidth: 6
+  gridHeight: 6
   tilePrefab: {fileID: -2510868045715180608, guid: 4c82ed1b8d3161e47bae379ebcfd1e05, type: 3}
   wantedItemsList:
   - {fileID: 2419217782211578260, guid: 3a2fd711f38c81a458649d47963a4582, type: 3}
@@ -162,12 +165,6 @@ MonoBehaviour:
   - {fileID: 8957700334759380325, guid: e16196bef80fa5046a80fccd5a898c7d, type: 3}
   - {fileID: 7355991955008864865, guid: b972585cf9621dd4198a71ac621313fd, type: 3}
   - {fileID: 3402067555417402138, guid: 61875f695f5b6a44898e6fc59a11333b, type: 3}
-  blue: 0
-  green: 0
-  pink: 0
-  purple: 0
-  red: 0
-  yellow: 0
   matchedPlaceableItemsList: []
 --- !u!4 &487862350
 Transform:
@@ -184,6 +181,49 @@ Transform:
   m_Father: {fileID: 1998718131}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &487862351
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 487862348}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ac25c5a6a694d8468bcce6a71657a26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  createdPlaceableList: []
+--- !u!114 &487862352
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 487862348}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f74fb691d1c5cc04d85ce2449b8e52ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blue: 0
+  green: 0
+  pink: 0
+  purple: 0
+  red: 0
+  yellow: 0
+--- !u!114 &487862353
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 487862348}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f8a2f501580da34a8e21cee62b2a8ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

@@ -38,9 +38,16 @@ namespace Placeables.Interactables.BasicColors
         private void Update()
         {
             CheckSprite();
+            ClapPosition();
         }
-
         
+        private void ClapPosition()
+        {
+            if (GameManager.GameManager.Instance.gameState == GameState.WaitForInput)
+            {
+                transform.localPosition = Vector2.zero;
+            }
+        }
 
         private void OnMouseDown()
         {
@@ -53,7 +60,7 @@ namespace Placeables.Interactables.BasicColors
                     if (GridManager.Instance.matchedPlaceableItemsList.Contains(placeableToDestroy))
                         GridManager.Instance.matchedPlaceableItemsList.Remove(placeableToDestroy);
                 }
-                GridManager.Instance.DestroyPlaceable(matchedNeighbourItems);
+                GridOperator.Instance.DestroyPlaceable(matchedNeighbourItems);
             }
             // matchedNeighbourItems.Clear();
         }

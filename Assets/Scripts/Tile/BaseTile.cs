@@ -8,19 +8,5 @@ namespace Tile
     {
         [Header("Occupied prefab")]
         public BasePlaceable occupiedPrefab;
-
-        private void Update()
-        {
-            ClapPosition();
-        }
-
-        private void ClapPosition()
-        {
-            var originPosition = transform.position;
-            var roundedX = Mathf.Round(originPosition.x);
-            var roundedY = Mathf.Round(originPosition.y);
-            transform.position = new Vector2(roundedX, roundedY);
-        }
-        
     }
 }

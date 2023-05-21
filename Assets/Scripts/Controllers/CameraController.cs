@@ -11,13 +11,13 @@ namespace Controllers
 
         private void OnEnable()
         {
-            GridManager.Instance.OnGameStart += CenterCamera;
+            GridCreator.Instance.onGameStart += CenterCamera;
         }
 
         private void OnDisable()
         {
-            if (GridManager.Instance == null) return; 
-            GridManager.Instance.OnGameStart -= CenterCamera;
+            if (GridCreator.Instance == null) return; 
+            GridCreator.Instance.onGameStart -= CenterCamera;
         }
 
         private void CenterCamera(int width,int height)

@@ -7,6 +7,7 @@ namespace GameManager
     {
         public GameState gameState;
         public Action checkForCombos;
+        public Action getGridData;
 
         private void Start()
         {
@@ -19,13 +20,14 @@ namespace GameManager
             switch (newState)
             {
                 case GameState.GenerateGrid:
-                    GridManager.Instance.GenerateGrid();
+                    GridCreator.Instance.GenerateGrid();
                     break;
                 case GameState.OperatingGrid:
                     break;
                 case GameState.WaitForInput:
                     break;
-                case GameState.CreateBonusItem:
+                case GameState.GetGridData:
+                    getGridData?.Invoke();
                     break;
                 case GameState.CheckForCombos:
                     checkForCombos?.Invoke();
@@ -40,8 +42,8 @@ namespace GameManager
     {
         GenerateGrid,
         OperatingGrid,
+        GetGridData,
         WaitForInput,
-        CreateBonusItem,
         CheckForCombos
     }
 }
