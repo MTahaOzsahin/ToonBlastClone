@@ -24,7 +24,7 @@ namespace Grid
             {
                 if (tile.Key.y < GridManager.Instance.gridHeight)
                 {
-                    var random = Random.Range(1, GridManager.Instance.wantedItemsList.Count);
+                    var random = Random.Range(0, GridManager.Instance.wantedItemsList.Count);
                     var spawnedItem = Instantiate(GridManager.Instance.wantedItemsList[random], tile.Value.transform.position,
                         Quaternion.identity, tile.Value.gameObject.transform);
                     spawnedItem.name = $"{GridManager.Instance.wantedItemsList[random].name}";
@@ -73,7 +73,7 @@ namespace Grid
         
         private IEnumerator RePlacedWantedItemsToGrid()
         {
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(0.8f);
             foreach (var basePlaceable in createdPlaceableList)
             {
                 var basePlaceablePosition = basePlaceable.transform.position;
@@ -97,7 +97,7 @@ namespace Grid
         private BasePlaceable CreateWantedItemsAtPosition(Vector2 position)
         {
             var newPosition = new Vector2(position.x, position.y);
-            var random = Random.Range(1, GridManager.Instance.wantedItemsList.Count);
+            var random = Random.Range(0, GridManager.Instance.wantedItemsList.Count);
             var spawnedItem = Instantiate(GridManager.Instance.wantedItemsList[random], newPosition, Quaternion.identity);
             spawnedItem.name = $"{GridManager.Instance.wantedItemsList[random].name}";
             spawnedItem.GetComponent<SpriteRenderer>().sortingOrder = (int)position.y;

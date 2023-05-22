@@ -177,11 +177,20 @@ namespace Grid
             }
         }
 
+        private void Clearer()
+        {
+            foreach (var a in GridManager.Instance.tilesInGrid)
+            {
+                a.Value.occupiedPrefab.GetComponent<BasicColor>().matchedNeighbourItems.Clear();
+            }
+        }
+
         /// <summary>
         /// After checking all rows and columns combine it together.
         /// </summary>
         private void CombineMatchedLists()
         {
+            Clearer();
             CheckForColumns();
             CheckForRows();
             CheckForColumnsReverse();
@@ -196,11 +205,26 @@ namespace Grid
                     foreach (var matchedNeighbourItem in originItem.matchedNeighbourItems)
                     {
                         tempList.Add(matchedNeighbourItem);
-                        if (originItem.matchedNeighbourItems.Count != matchedNeighbourItem.matchedNeighbourItems.Count )
+                        // if (originItem.matchedNeighbourItems.Count != matchedNeighbourItem.matchedNeighbourItems.Count )
+                        // {
+                        //     for (int i = 0; i < matchedNeighbourItem.matchedNeighbourItems.Count; i++)
+                        //     {
+                        //         if (!matchedNeighbourItem.matchedNeighbourItems[i].matchedNeighbourItems.Contains(originItem))
+                        //             matchedNeighbourItem.matchedNeighbourItems[i].matchedNeighbourItems.Add(originItem);
+                        //     }
+                        // }
+                        
+                        for (int i = 0; i < matchedNeighbourItem.matchedNeighbourItems.Count; i++)
                         {
-                            for (int i = 0; i < matchedNeighbourItem.matchedNeighbourItems.Count; i++)
+                            if (!matchedNeighbourItem.matchedNeighbourItems[i].matchedNeighbourItems.Contains(originItem))
+                                matchedNeighbourItem.matchedNeighbourItems[i].matchedNeighbourItems.Add(originItem);
+                            var originItemMatchedNeighbourItemsCount = originItem.matchedNeighbourItems.Count;
+                            for (int j = 0; j < originItemMatchedNeighbourItemsCount; j++)
                             {
-                                if (!matchedNeighbourItem.matchedNeighbourItems[i].matchedNeighbourItems.Contains(originItem)) matchedNeighbourItem.matchedNeighbourItems[i].matchedNeighbourItems.Add(originItem);
+                                if ( !originItem.matchedNeighbourItems[j].matchedNeighbourItems.Contains(matchedNeighbourItem))
+                                {
+                                    originItem.matchedNeighbourItems[j].matchedNeighbourItems.Add(matchedNeighbourItem);
+                                }
                             }
                         }
                     }
